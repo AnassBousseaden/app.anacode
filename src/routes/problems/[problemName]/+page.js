@@ -12,7 +12,6 @@ export const load = async ({ params, fetch }) => {
         throw new Error('Failed to fetch data');
     }
     const problem = await response.json()
-
     return problem;
 
 }
