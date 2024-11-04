@@ -1,6 +1,6 @@
 import { url } from "$lib/submissions";
 
-export const prerender = true;
+export const prerender = false;
 export const ssr = false;
 
 // @ts-ignore

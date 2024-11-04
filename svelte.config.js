@@ -14,9 +14,6 @@ const config = {
 			precompress: false,
 			strict: true
 		}),
-		prerender: {
-			handleMissingId: 'ignore',
-		},
 	},
 	preprocess: vitePreprocess()
 };
