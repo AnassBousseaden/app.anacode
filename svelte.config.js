@@ -5,7 +5,7 @@ import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
 const config = {
 	kit: {
 		paths: {
-			base: process.argv.includes('dev') ? '' : "/app.anacode"
+			base: process.argv.includes('dev') ? '' : process.env.BASE_PATH
 		},
 		adapter: adapter({
 			pages: 'build',
@@ -17,5 +17,10 @@ const config = {
 	},
 	preprocess: vitePreprocess()
 };
+
+paths: {
+	base: '/app.anacode'
+}
+
 
 export default config;

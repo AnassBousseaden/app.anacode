@@ -1,7 +1,8 @@
 <script>
     export let id, title;
+    import { base } from '$app/paths';
 </script>
 
 <div class="problem-preview">
-    <a href="/problems/{id}">{title}</a>
+    <a href="{base}/problems/{id}">{title}</a>
 </div>
