@@ -1,9 +1,9 @@
 <script>
     // @ts-nocheck
-
     export let performLogin;
     export let showModal;
     export let setModalState;
+    import github from "$lib/images/github.svg";
 
     /**
      * @type {HTMLDialogElement}
@@ -39,7 +39,10 @@
         <hr />
         <ol class="definition-list">
             <li>
-                <button on:click={performLogin}>mock auth</button>
+                <button on:click={performLogin}>
+                    github
+                    <img src={github} alt="github icon" />
+                </button>
             </li>
         </ol>
         <hr />
