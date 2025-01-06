@@ -7,6 +7,7 @@
 	import { Button } from '$lib/components/ui/button/index.js';
 	import * as Card from '$lib/components/ui/card/index.js';
 	import * as Table from '$lib/components/ui/table/index.js';
+	import { Badge } from '$lib/components/ui/badge/index.js';
 </script>
 
 
@@ -26,13 +27,19 @@
 			<Table.Header>
 				<Table.Row>
 					<Table.Head>Title</Table.Head>
+					<Table.Head>Difficulty</Table.Head>
 				</Table.Row>
 			</Table.Header>
 			<Table.Body>
-				{#each problems as { id, title }}
+				{#each problems as { id, title, difficulty }}
 					<Table.Row>
 						<Table.Cell>
 							<a href="{base}/problems/{id}" class="font-medium">{title}</a>
+						</Table.Cell>
+						<Table.Cell>
+							<Badge>
+								{difficulty}
+							</Badge>
 						</Table.Cell>
 					</Table.Row>
 				{/each}

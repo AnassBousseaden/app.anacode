@@ -11,6 +11,5 @@ export const load = async ({ params, fetch }) => {
 	if (!response.ok) {
 		throw new Error('Failed to fetch data');
 	}
-	const problem = await response.json();
-	return problem;
+	return await response.json();
 };

@@ -1,8 +1,4 @@
 <script>
-	// Limitations: this page should also validate that auth_cookie is set properly but since the cookie is
-	// marked as http only the only way to validate it is to make a request to an authenticated backend endpoint
-	// so i could setup a "/.../validate-session" endpoint just for this.
-
 	import { page } from '$app/stores';
 
 	let status = 'Loading...';

@@ -13,14 +13,13 @@ const config = {
 			fallback: '404.html',
 			precompress: false,
 			strict: true
-		}),
+		})
 	},
 	preprocess: vitePreprocess()
 };
 
 paths: {
-	base: '/app.anacode'
+	base: '/app.anacode';
 }
-
 
 export default config;

@@ -1,3 +1,4 @@
+<!--
 <script>
 	// @ts-nocheck
 
@@ -15,3 +16,7 @@
 {#if data}
 	<pre><code>{data}</code></pre>
 {/if}
+
+-->
+
+

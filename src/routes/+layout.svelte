@@ -1,11 +1,17 @@
 <script>
 	import Header from './Header.svelte';
 	import '../app.css';
+	import { ModeWatcher } from 'mode-watcher';
 </script>
 
-<Header></Header>
+
+<ModeWatcher></ModeWatcher>
+
+<Header />
+
+
 <div class="layout-container">
-	<slot></slot>
+	<slot />
 </div>
 
 <style>
