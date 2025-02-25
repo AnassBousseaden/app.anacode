@@ -1,20 +1,21 @@
 <script>
-	import * as Tabs from '$lib/components/ui/tabs/index.js';
-	import * as Card from '$lib/components/ui/card/index.js';
-	import { Separator } from '$lib/components/ui/separator/index.js';
-	import ResultBlock from '$lib/app/components/result/ResultBlock.svelte';
-	import PromptContent from '$lib/app/components/prompt/PromptContent.svelte';
-	import SubmissionPreview from '$lib/app/components/prompt/submission/SubmissionPreview.svelte';
+  import * as Tabs from '$lib/components/ui/tabs/index.js';
+  import * as Card from '$lib/components/ui/card/index.js';
+  import { Separator } from '$lib/components/ui/separator/index.js';
+  import ResultBlock from '$lib/app/components/result/ResultBlock.svelte';
+  import PromptContent from '$lib/app/components/prompt/PromptContent.svelte';
+  import SubmissionPreview from '$lib/app/components/prompt/submission/SubmissionPreview.svelte';
 
-	export let title;
-	export let description;
-	export let examples;
-	export let difficulty;
-	export let submissions;
+  export let title;
+  export let description;
+  export let examples;
+  export let difficulty;
+  export let submissions;
+  export let tabs;
 </script>
 
 
-<Tabs.Root value="prompt" class="flex flex-col flex-grow overflow-hidden">
+<Tabs.Root bind:value={tabs} class="flex flex-col flex-grow overflow-hidden">
 	<Tabs.List class="grid w-full grid-cols-2">
 		<Tabs.Trigger value="prompt">Description</Tabs.Trigger>
 		<Tabs.Trigger value="submissions">Submissions</Tabs.Trigger>
@@ -57,5 +58,6 @@
 
 
 	</Tabs.Content>
+	<slot />
 </Tabs.Root>
 

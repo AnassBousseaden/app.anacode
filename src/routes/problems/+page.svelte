@@ -1,15 +1,20 @@
 <script>
-	import { base } from '$app/paths';
+  import { base } from '$app/paths';
 
-	export let data;
-	const { problems } = data;
-	import ArrowUpRight from 'lucide-svelte/icons/arrow-up-right';
-	import { Button } from '$lib/components/ui/button/index.js';
-	import * as Card from '$lib/components/ui/card/index.js';
-	import * as Table from '$lib/components/ui/table/index.js';
-	import { Badge } from '$lib/components/ui/badge/index.js';
+  export let data;
+  const { problems } = data;
+  import ArrowUpRight from 'lucide-svelte/icons/arrow-up-right';
+  import { Button } from '$lib/components/ui/button/index.js';
+  import * as Card from '$lib/components/ui/card/index.js';
+  import * as Table from '$lib/components/ui/table/index.js';
+  import { Badge } from '$lib/components/ui/badge/index.js';
+  import { goto } from '$app/navigation';
+
+  // Map language IDs to readable language names
+  const languageMap = {
+    71: 'Python 3'
+  };
 </script>
-
 
 <Card.Root class="xl:col-span-2 w-2/3">
 	<Card.Header class="flex flex-row items-center">
@@ -22,24 +27,39 @@
 			<ArrowUpRight class="h-4 w-4" />
 		</Button>
 	</Card.Header>
+
 	<Card.Content>
 		<Table.Root>
-			<Table.Header>
+			<Table.Header class="bg-muted">
 				<Table.Row>
 					<Table.Head>Title</Table.Head>
 					<Table.Head>Difficulty</Table.Head>
+					<Table.Head>Language</Table.Head>
+					<Table.Head>Last Updated</Table.Head>
 				</Table.Row>
 			</Table.Header>
 			<Table.Body>
-				{#each problems as { id, title, difficulty }}
-					<Table.Row>
-						<Table.Cell>
-							<a href="{base}/problems/{id}" class="font-medium">{title}</a>
-						</Table.Cell>
+				{#each problems as { id, title, difficulty, language_id, updated_at }}
+					<Table.Row
+						on:click={() => goto(`${base}/problems/${id}`)}
+						class="cursor-pointer hover:bg-accent transition-colors"
+					>
+						<Table.Cell>{title}</Table.Cell>
+
 						<Table.Cell>
 							<Badge>
 								{difficulty}
 							</Badge>
+						</Table.Cell>
+
+						<Table.Cell>
+							<Badge>
+								{languageMap[language_id] || "Unknown"}
+							</Badge>
+						</Table.Cell>
+
+						<Table.Cell>
+							{new Date(updated_at).toLocaleDateString()}
 						</Table.Cell>
 					</Table.Row>
 				{/each}
@@ -47,6 +67,3 @@
 		</Table.Root>
 	</Card.Content>
 </Card.Root>
-
-<style>
-</style>

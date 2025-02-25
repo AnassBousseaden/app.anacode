@@ -3,6 +3,12 @@ import { url } from '$lib/api/anacode/api.anacode.js';
 
 export { url };
 
+// Helper function to handle errors
+async function handleError(response) {
+	const errorData = await response.json();
+	throw new Error(errorData.error || 'Unknown error occurred');
+}
+
 export const pollingConfig = {
 	maxAttempts: 4,
 	interval: 1000
@@ -15,13 +21,6 @@ export const SubmissionStatus = Object.freeze({
 	Success: 'execution success',
 	Timeout: 'timeout'
 });
-
-export class TimeOut extends Error {
-	constructor(message) {
-		super(message);
-		this.name = 'TimeOut';
-	}
-}
 
 export class JudgeError extends Error {
 	constructor(message) {
@@ -43,7 +42,7 @@ export async function postToJudge(problem_id, typed_code) {
 		})
 	});
 	if (!response.ok) {
-		throw new JudgeError(`${response.error || 'Unknown error'}`);
+		await handleError(response);
 	}
 	const data = await response.json();
 	return data.token;
@@ -59,7 +58,7 @@ export async function getFromJudge(token) {
 		}
 	});
 	if (!response.ok) {
-		throw new JudgeError(`${response.error || 'Unknown error'}`);
+		await handleError(response);
 	}
 	return await response.json();
 }
@@ -74,7 +73,7 @@ export async function pollForResult(token) {
 		attempts++;
 		await new Promise((resolve) => setTimeout(resolve, pollingConfig.interval));
 	}
-	throw new TimeOut();
+	throw new Error('connection Timeout');
 }
 
 export async function getSubmissions(problem_id) {
@@ -84,7 +83,7 @@ export async function getSubmissions(problem_id) {
 		method: 'GET'
 	});
 	if (!response.ok) {
-		throw new JudgeError(`${response.error || 'Unknown error'}`);
+		await handleError(response);
 	}
 	return await response.json();
 }
@@ -96,7 +95,7 @@ export async function getSubmission(problem_id, submission_id) {
 		method: 'GET'
 	});
 	if (!response.ok) {
-		throw new JudgeError(`${response.error || 'Unknown error'}`);
+		await handleError(response);
 	}
 	return await response.json();
 }

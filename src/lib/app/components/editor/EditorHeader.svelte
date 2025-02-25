@@ -1,12 +1,12 @@
 <script lang="js">
-	import { LoaderCircle, SquareChevronRight } from 'lucide-svelte';
+  import { LoaderCircle, SquareChevronRight } from 'lucide-svelte';
 
-	export let handleSubmit;
-	export let submissionStatus;
-	export let detail = '';
-	import { Button } from '$lib/components/ui/button/index.js';
-	import { Badge } from '$lib/components/ui/badge/index.js';
-	import { SubmissionStatus } from '$lib/api/anacode/submissions.js';
+  export let handleSubmit;
+  export let submissionStatus;
+  export let detail = '';
+  import { Button } from '$lib/components/ui/button/index.js';
+  import { Badge } from '$lib/components/ui/badge/index.js';
+  import { SubmissionStatus } from '$lib/api/anacode/submissions.js';
 
 </script>
 

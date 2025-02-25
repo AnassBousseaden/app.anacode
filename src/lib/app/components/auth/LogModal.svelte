@@ -1,16 +1,16 @@
 <script>
-	import * as Dialog from '$lib/components/ui/dialog/index.js';
-	import github from '$lib/images/github.svg';
-	import {
-		Button,
-		buttonVariants
-	} from '$lib/components/ui/button/index.js';
-	import { Github } from 'lucide-svelte';
+  import * as Dialog from '$lib/components/ui/dialog/index.js';
+  import {
+    Button,
+    buttonVariants
+  } from '$lib/components/ui/button/index.js';
+  import { Github } from 'lucide-svelte';
+  import { writable } from 'svelte/store';
 
-	export let performLogAction;
-	export let showModal;
-	export let title;
-	export let description = 'Select one of the following providers';
+  export let performLogAction;
+  export let showModal = writable(false);
+  export let title;
+  export let description = 'Select one of the following providers';
 
 </script>
 

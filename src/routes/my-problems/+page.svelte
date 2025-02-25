@@ -10,105 +10,104 @@
   import ArrowUpRight from 'lucide-svelte/icons/arrow-up-right';
   import * as Card from '$lib/components/ui/card/index.js';
   import * as Table from '$lib/components/ui/table/index.js';
+  import * as Tooltip from '$lib/components/ui/tooltip/index.js';
   import NoProblems from '$lib/app/components/create/NoProblems.svelte';
   import { jsonToQueryParams } from '$lib/app/utils.js';
-  import { deleteUserProblem } from '$lib/api/anacode/api.anacode.js';
+  import { deleteUserProblem, getUserProblems } from '$lib/api/anacode/api.anacode.js';
+  import { toast } from 'svelte-sonner';
+  import { writable } from 'svelte/store';
 
   export let data;
-  let { problems } = data;
-  console.log(problems);
+  let problems = writable(data.problems);
+  $: problems.set(data.problems);
+
 
   async function deleteProblem(problem_id) {
     try {
       await deleteUserProblem(problem_id);
-      problems = problems.filter(problem => problem.id !== problem_id);
+      $problems = $problems.filter(problem => problem.id !== problem_id);
+      toast.success(`problem [${problem_id}] deleted`);
     } catch (err) {
-      alert('Deletion failed');
+      toast.error(err.message);
     }
   }
 
-
 </script>
-
-
-{#if problems.length === 0}
-	<NoProblems />
-{:else }
-	<Card.Root class="xl:col-span-1 w-2/3">
-		<Card.Header class="flex flex-row items-center">
-			<div class="grid gap-2">
-				<Card.Title>Your Programming Problems</Card.Title>
-				<Card.Description>Manage Your Programming Problems</Card.Description>
+{#if $problems}
+	<Card.Root class="xl:col-span-1 w-full w-2/3 mx-auto shadow-md">
+		<Card.Header class="flex flex-row items-center justify-between p-4">
+			<div class="grid gap-1">
+				<Card.Title class="text-lg font-semibold">Your Programming Problems</Card.Title>
+				<Card.Description class="text-sm text-muted-foreground">
+					Manage your created problems
+				</Card.Description>
 			</div>
+			<Button href="{base}/my-problems/create" class="gap-2">
+				<PlusCircle class="h-4 w-4" />
+				New Problem
+			</Button>
 		</Card.Header>
-		<Card.Content>
-			<Table.Root>
-				<Table.Header>
-					<Table.Row>
-						<Table.Head>Id</Table.Head>
-						<Table.Head>Title</Table.Head>
-						<Table.Head>Difficulty</Table.Head>
-						<Table.Head>Last Update</Table.Head>
-					</Table.Row>
-				</Table.Header>
-				<Table.Body>
-					{#each problems as { id, title, difficulty, updated_at }}
-						<Table.Row>
-							<Table.Cell>
-								{id}
-							</Table.Cell>
-							<Table.Cell>
-								<a href="{base}/problems/{id}" class="font-medium">{title}</a>
-							</Table.Cell>
-							<Table.Cell>
-								<Badge>
-									{difficulty}
-								</Badge>
-							</Table.Cell>
-							<Table.Cell>
-								{new Date(updated_at).toLocaleString()}
-							</Table.Cell>
-							<Table.Cell class="text-right">
-								<Button href={`/my-problems/create?${jsonToQueryParams({problem_id:id})}`} size="icon">
-									<PencilLine class="w-4 h-4" />
-								</Button>
 
-								<AlertDialog.Root>
-									<AlertDialog.Trigger asChild let:builder>
-										<Button on:click={() => console.log("delete")} builders={[builder]} variant="destructive"
-														size="icon">
-											<Trash2 class="w-4 h-4" />
-										</Button>
-									</AlertDialog.Trigger>
-									<AlertDialog.Content>
-										<AlertDialog.Header>
-											<AlertDialog.Title>Are you absolutely sure?</AlertDialog.Title>
-											<AlertDialog.Description>
-												This action cannot be undone. This will permanently delete the problem
-												and remove associated data from our servers.
-											</AlertDialog.Description>
-										</AlertDialog.Header>
-										<AlertDialog.Footer>
-											<AlertDialog.Cancel>Cancel</AlertDialog.Cancel>
-											<AlertDialog.Action on:click={() => deleteProblem(id)}>Confirm</AlertDialog.Action>
-										</AlertDialog.Footer>
-									</AlertDialog.Content>
-								</AlertDialog.Root>
-							</Table.Cell>
+		<Card.Content class="overflow-x-auto">
+			{#if $problems.length > 0}
+				<Table.Root class="w-full">
+					<Table.Header>
+						<Table.Row class="bg-muted">
+							<Table.Head>ID</Table.Head>
+							<Table.Head>Title</Table.Head>
+							<Table.Head>Difficulty</Table.Head>
+							<Table.Head>Last Update</Table.Head>
+							<Table.Head>Action</Table.Head>
 						</Table.Row>
-					{/each}
-					<Table.Row>
-						<Table.Cell class="items-center" colspan="5">
+					</Table.Header>
 
-
-							<Button href="{base}/my-problems/create" class="w-full gap-2">
-								<PlusCircle class="h-4 w-4" />
-								Create a Problem
-							</Button>
-						</Table.Cell>
-					</Table.Row>
-				</Table.Body>
-			</Table.Root>
+					<Table.Body>
+						{#each $problems as { id, title, difficulty, updated_at }}
+							<Table.Row class="hover:bg-accent transition">
+								<Table.Cell>{id}</Table.Cell>
+								<Table.Cell class="truncate max-w-xs">
+									<a href="{base}/problems/{id}" class="font-medium text-primary hover:underline">
+										{title}
+									</a>
+								</Table.Cell>
+								<Table.Cell>
+									<Badge>{difficulty}</Badge>
+								</Table.Cell>
+								<Table.Cell>{new Date(updated_at).toLocaleString()}</Table.Cell>
+								<Table.Cell>
+									<Button href={`/my-problems/create?${jsonToQueryParams({ problem_id: id })}`}
+													size="icon">
+										<PencilLine class="w-4 h-4" />
+									</Button>
+									<AlertDialog.Root>
+										<AlertDialog.Trigger asChild let:builder>
+											<Button builders={[builder]} variant="destructive" size="icon">
+												<Trash2 class="w-4 h-4" />
+											</Button>
+										</AlertDialog.Trigger>
+										<AlertDialog.Content>
+											<AlertDialog.Header>
+												<AlertDialog.Title>Are you absolutely sure?</AlertDialog.Title>
+												<AlertDialog.Description>
+													This action cannot be undone. This will permanently delete the problem.
+												</AlertDialog.Description>
+											</AlertDialog.Header>
+											<AlertDialog.Footer>
+												<AlertDialog.Cancel>Cancel</AlertDialog.Cancel>
+												<AlertDialog.Action on:click={() => deleteProblem(id)}>
+													Delete
+												</AlertDialog.Action>
+											</AlertDialog.Footer>
+										</AlertDialog.Content>
+									</AlertDialog.Root>
+								</Table.Cell>
+							</Table.Row>
+						{/each}
+					</Table.Body>
+				</Table.Root>
+			{:else}
+				<NoProblems />
+			{/if}
 		</Card.Content>
 	</Card.Root>
 {/if}

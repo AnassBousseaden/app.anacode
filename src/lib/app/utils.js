@@ -26,10 +26,21 @@ export function localStorageJsonWritable(key, initialObject) {
 	const storedValue = localStorage.getItem(key);
 	const value = storedValue !== null ? JSON.parse(storedValue) : initialObject;
 	const store = writable(value);
+
 	store.subscribe((val) => {
 		localStorage.setItem(key, JSON.stringify(val));
 	});
-	return store;
+
+	// Add clear method to remove data from localStorage
+	const clear = () => {
+		localStorage.removeItem(key);
+		store.set(initialObject);
+	};
+
+	return {
+		...store,
+		clear
+	};
 }
 
 export function jsonToQueryParams(json) {

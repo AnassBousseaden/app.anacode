@@ -28,37 +28,68 @@ if __name__ == "__main__":
 
 `;
 
-export let step1Description = `In this step, you'll write your problem description.
+export let stepDescriptionText = {
+	title: `Write your problem description.`,
+	description: `
+<p><em>Details</em>:</p>
+<ul class="list-disc pl-5">
+  <li>Start with a clear problem statement</li>
+  <li>Explain input/output formats and data types</li>
+  <li>List any constraints (e.g., time/space complexity, input ranges)</li>
+  <li>Provide 2-3 examples</li>
+  <li>The editor supports basic markdown</li>
+</ul>
+<p>
+  A clear and detailed description ensures users fully understand the problem and expectations.
+</p>
+`
+};
 
-- Start with a clear problem statement
-- Explain input/output formats and data types
-- List any constraints (e.g., time/space complexity, input ranges)
-- Provide 2-3 examples with explanations
-- Add any helpful hints or notes (optional)
+export let stepDriverCodeText = {
+	title: `Create the starting code template for users.`,
+	description: `
+<p><em>Details</em>:</p>
+<ul class="list-disc pl-5">
+  <li>Set up the main function/class structure</li>
+  <li>Define parameter types and return type</li>
+  <li>Add any necessary imports or helper code</li>
+  <li>Include comments to guide users</li>
+</ul>
+<p>
+  This starter code helps users focus on solving the problem without worrying about setup.
+</p>
+`
+};
 
-A good description helps users understand exactly what they need to solve!`;
+export let stepTestCasesText = {
+	title: `Create test cases to validate solutions.`,
+	description: `
+<p><em>Details</em> :</p>
+<ul class="list-disc pl-5">
+  <li>Start with simple, basic test cases, add edge cases (empty inputs, boundary values, etc.)</li>
+  <li>Make sure to define the main entry point here</li>
+  <li>Prefer using a <strong>unit test library</strong> to validate user's code</li>
+  <li>Make sure to have a <strong>"fail fast"</strong> testing strategy to not disclose every test case upon submission</li>
+  <li><em>stderr</em> will be displayed to the user upon submission</li>
+  <li>A <em><strong>non-zero return code</strong></em> indicates a failed submission</li>
+  <li>Submissions taking longer than 2 seconds will timeout</li>
+</ul>
+<p>Good test cases help ensure users' solutions work correctly!</p>
+`
+};
 
-export let step2description = `Here you'll create the starting code template for users.
-
-- Set up the main function/class structure
-- Define parameter types and return type
-- Add any necessary imports or helper code
-- Include comments to guide users
-
-This code will be the starting point for everyone attempting your problem.`;
-export let step3Description = `Now it's time to create test cases to validate solutions.
-
-- Start with simple, basic test cases
-- Add edge cases (empty inputs, boundary values, etc.)
-- Include large test cases for performance testing
-- Provide explanations for complex test cases
-
-Good test cases help ensure users' solutions work correctly!`;
-export let step4Description = `Final step! Review everything before publishing.
-
-- Check your problem description for clarity
-- Verify the driver code compiles correctly
-- Run all test cases to confirm they work
-- Make any final adjustments
-
-Once you're satisfied, hit save to publish your problem!`;
+export let stepPreviewAndSaveText = {
+	title: `Review everything before publishing.`,
+	description: `
+<p><em>Details</em>:</p>
+<ul class="list-disc pl-5">
+  <li>Check your problem description for clarity</li>
+  <li>Verify the driver code compiles correctly</li>
+  <li>Run all test cases to confirm they work</li>
+  <li>Make any final adjustments</li>
+</ul>
+<p>
+  Once you're satisfied, hit publish!
+</p>
+`
+};

@@ -1,94 +1,119 @@
-<script lang="js">
-	// @ts-nocheck
-	import { onMount, onDestroy } from 'svelte';
-	import { EditorView, basicSetup } from 'codemirror';
-	import { python } from '@codemirror/lang-python';
-	import { keymap } from '@codemirror/view';
-	import { githubDark, githubLight } from '@uiw/codemirror-theme-github';
-	import { mode } from 'mode-watcher';
-	import { StateEffect } from '@codemirror/state';
+<script>
+  import { onMount, onDestroy } from 'svelte';
+  import * as monaco from 'monaco-editor';
+  import { mode } from 'mode-watcher';
+  import nightOwl from 'monaco-themes/themes/Night Owl.json';
+  import tomorrowTheme from 'monaco-themes/themes/Tomorrow.json';
+  import editorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker';
+  import jsonWorker from 'monaco-editor/esm/vs/language/json/json.worker?worker';
+  import cssWorker from 'monaco-editor/esm/vs/language/css/css.worker?worker';
+  import htmlWorker from 'monaco-editor/esm/vs/language/html/html.worker?worker';
+  import tsWorker from 'monaco-editor/esm/vs/language/typescript/ts.worker?worker';
 
-	// export props
-	export let codeStore = "";
+  export let codeStore = '';
+  export let fontSize = 17;
+  export let language = 'python';
+  export let tabSize = 2;
+  export let readOnly = false;
+  export let fit = false;
+  export let wordWrap = 'on';
 
-	let editorDiv;
-	let editor;
-	let unsubscribe;
-	const tabSize = 2;
-	// Custom tab insertion function
-	const insertTab = ({ state, dispatch }) => {
-		dispatch(
-			state.update({
-				changes: { from: state.selection.main.head, insert: '  ' },
-				selection: { anchor: state.selection.main.head + tabSize }
-			})
-		);
-		return true;
-	};
+  let editorDiv;
+  let editor;
+  let unsubscribe;
 
-	// Custom extensions
-	const tabHandler = EditorView.domEventHandlers({
-		keydown: (event, view) => {
-			if (event.key === 'Tab') {
-				event.preventDefault();
-				return insertTab(view);
-			}
-		}
-	});
+  const updateEditorHeight = () => {
+    if (!editor || !readOnly || !fit) return;
+    const padding = 50;
+    const contentHeight = editor.getContentHeight();
+    editorDiv.style.height = `${contentHeight + padding}px`;
+    editor.layout();
+  };
 
-	const customTabBehavior = keymap.of([{ key: 'Tab', run: insertTab }]);
+  self.MonacoEnvironment = {
+    getWorker: function(_moduleId, label) {
+      console.log(label);
+      if (label === 'json') {
+        return new jsonWorker();
+      }
+      if (label === 'css' || label === 'scss' || label === 'less') {
+        return new cssWorker();
+      }
+      if (label === 'html' || label === 'handlebars' || label === 'razor') {
+        return new htmlWorker();
+      }
+      if (label === 'typescript' || label === 'javascript') {
+        return new tsWorker();
+      }
+      return new editorWorker();
+    }
+  };
 
-	const flexEditor = EditorView.theme({
-		'&': {
-			flexGrow: '1',
-			height: '100%',
-			overflow: 'hidden'
-		}
-	});
+  const initMonaco = (darkMode) => {
+    monaco.editor.defineTheme('night-owl', nightOwl);
+    monaco.editor.defineTheme('tomorrow', tomorrowTheme);
+    monaco.editor.setTheme(darkMode ? 'night-owl' : 'tomorrow');
 
-	const eventListener = EditorView.updateListener.of((update) => {
-		if (update.docChanged) {
-			codeStore = update.state.doc.toString();
-		}
-	});
+    editor = monaco.editor.create(editorDiv, {
+      value: codeStore,
+      language: language,
+      automaticLayout: true,
+      minimap: {
+        enabled: false
+      },
+      fontFamily: 'JetBrains Mono',
+      tabSize: tabSize,
+      scrollBeyond: false,
+      fontSize: fontSize,
+      fontLigatures: true,
+      lineNumbers: 'on',
+      roundedSelection: false,
+      readOnly: readOnly,
+      cursorStyle: 'line',
+      wordWrap: wordWrap,
+      'bracketPairColorization.enabled': true,
+      rulers: []
+    });
 
-	onMount(() => {
-		editor = new EditorView({
-			doc: codeStore,
-			extensions: [
-				basicSetup,
-				python(),
-				EditorView.lineWrapping,
-				$mode === 'dark' ? githubDark : githubLight,
-				flexEditor,
-				eventListener,
-				customTabBehavior,
-				tabHandler
-			],
-			parent: editorDiv
-		});
+    editor.onDidChangeModelContent(() => {
+      codeStore = editor.getValue();
+      updateEditorHeight();
+    });
 
-		unsubscribe = mode.subscribe((currentMode) => {
-			if (!editor) return;
+    // Initial height update if needed
+    updateEditorHeight();
+  };
 
-			editor.dispatch({
-				effects: StateEffect.reconfigure.of([
-					basicSetup,
-					python(),
-					EditorView.lineWrapping,
-					currentMode === 'dark' ? githubDark : githubLight,
-					flexEditor,
-					eventListener,
-					customTabBehavior,
-					tabHandler
-				])
-			});
-		});
+  onMount(async () => {
+    initMonaco($mode === 'dark');
+    console.log('init finish');
 
-	});
-	onDestroy(() => {
-		editor?.destroy();
-	});
+    unsubscribe = mode.subscribe((currentMode) => {
+      if (!editor) return;
+      monaco.editor.setTheme(currentMode === 'dark' ? 'night-owl' : 'tomorrow');
+    });
+
+    const resizeObserver = new ResizeObserver(() => {
+      editor?.layout();
+    });
+
+    if (editorDiv) {
+      resizeObserver.observe(editorDiv);
+    }
+
+    return () => {
+      resizeObserver.disconnect();
+    };
+  });
+
+  onDestroy(() => {
+    if (editor) {
+      editor.dispose();
+    }
+    if (unsubscribe) {
+      unsubscribe();
+    }
+  });
 </script>
 
 <div class="flex-grow overflow-hidden border-2" bind:this={editorDiv}></div>

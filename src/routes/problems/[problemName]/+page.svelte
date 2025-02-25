@@ -1,12 +1,11 @@
 <script>
   import Editor from '$lib/app/components/editor/Editor.svelte';
   import Prompt from '$lib/app/components/prompt/Prompt.svelte';
+  import * as Card from '$lib/components/ui/card/index.js';
   import EditorHeader from '$lib/app/components/editor/EditorHeader.svelte';
   import {
     pollForResult,
     postToJudge,
-    TimeOut,
-    JudgeError,
     SubmissionStatus,
     getSubmissions, getSubmission
   } from '$lib/api/anacode/submissions.js';
@@ -15,20 +14,45 @@
   import { localStorageWritable } from '$lib/app/utils.js';
   import { writable } from 'svelte/store';
   import { onMount } from 'svelte';
+  import { toast } from 'svelte-sonner';
+  import { Separator } from '$lib/components/ui/separator/index.js';
+  import SubmissionPreview from '$lib/app/components/prompt/submission/SubmissionPreview.svelte';
+  import * as Tabs from '$lib/components/ui/tabs/index.js';
+  import { authStore } from '$lib/api/anacode/auth.js';
 
   /** @type {import('./$types').PageData} */
   export let data;
   let submissions = writable([]);
+  let pane;
+  let mainPaneGroupApi;
 
   const { id, title, description, examples, driver_code, difficulty } = data;
 
-  onMount(async () => {
+
+  // ----- fetch submissions handling
+  async function tryGetSubmissions() {
     try {
       $submissions = await getSubmissions(id);
-      console.log($submissions);
-    } catch (e) {
-      console.log('unable to get submissions');
+    } catch (err) {
+      toast.info('not able to fetch submissions: ' + err.message);
     }
+  }
+
+  authStore.subscribe((userData) => {
+      if (userData.isAuthenticated) {
+        tryGetSubmissions();
+      } else {
+        submissions.set([]);
+      }
+    }
+  );
+
+  onMount(async () => {
+    if (!$authStore.isAuthenticated) {
+      toast.info('Login to submit code');
+      return;
+    }
+    await tryGetSubmissions();
   });
 
   // code Store
@@ -55,28 +79,37 @@
 
     } catch (err) {
       $submission.status = SubmissionStatus.Error;
-      if (err instanceof TimeOut) {
-        $submission.status = SubmissionStatus.Timeout;
-        $submission.result = {};
-      }
+      $submission.result = {};
+      submission.token = '';
+
+      toast.error(err.message);
     } finally {
       if ($submission.status === SubmissionStatus.Running) {
         $submission.status = SubmissionStatus.Success;
+        toast.info(SubmissionStatus.Success, {
+          duration: Infinity,
+          class: 'border'
+        });
         let submissionResult = await getSubmission(id, $submission.token);
         $submissions = [...$submissions, submissionResult];
-        console.log($submissions);
+        pane.resize(Math.max(33, pane.getSize()));
+        $tabs = 'submissions';
       }
     }
   };
+  let tabs = writable('prompt');
+
+
 </script>
 
 
-<Resizable.PaneGroup direction="horizontal" class="max-w-[98%] max-h-full gap-2">
+<Resizable.PaneGroup bind:PaneGroupAPI={mainPaneGroupApi} autoSaveId="main" direction="horizontal"
+										 class="max-w-[98%] max-h-full gap-2">
 
 	<Resizable.Pane defaultSize={34} className="flex flex-grow shrink min-h-0 min-w-0"
 									style="display: flex; overflow-x: auto">
 		<div class="flex flex-grow flex-col shrink min-w-[400px] min-h-0">
-			<Prompt {title} {description} {examples} {difficulty} submissions={$submissions.reverse()} />
+			<Prompt bind:tabs={$tabs} {title} {description} {examples} {difficulty} submissions={$submissions.reverse()} />
 		</div>
 	</Resizable.Pane>
 
@@ -89,7 +122,7 @@
 		<div class="flex flex-grow flex-col shrink min-w-[400px] min-h-0">
 			<Resizable.PaneGroup direction="vertical" class="gap-2 overflow-auto flex">
 
-				<Resizable.Pane defaultSize={75} class="flex flex-col overflow-auto gap-2">
+				<Resizable.Pane defaultSize={100} class="flex flex-col overflow-auto gap-2">
 					<EditorHeader {handleSubmit} submissionStatus={$submission.status}
 												detail={$submission.result.status_message} />
 					<Editor bind:codeStore={$codeStore} />
@@ -97,8 +130,8 @@
 
 				<Resizable.Handle withHandle />
 
-				<Resizable.Pane defaultSize={25} class="overflow-hidden flex">
-					<ResultBlock submission={$submission.result.stderr} />
+				<Resizable.Pane bind:pane={pane} defaultSize={0} class="overflow-hidden flex">
+					<ResultBlock collapse={() => pane.resize(0)} submission={$submission.result.stderr} />
 				</Resizable.Pane>
 
 			</Resizable.PaneGroup>

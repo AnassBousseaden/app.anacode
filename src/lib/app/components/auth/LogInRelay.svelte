@@ -1,5 +1,5 @@
-<script lang="ts">
-	import Login from '$lib/app/components/auth/Login.svelte';
+<script>
+  import Login from '$lib/app/components/auth/Login.svelte';
 </script>
 
 <div

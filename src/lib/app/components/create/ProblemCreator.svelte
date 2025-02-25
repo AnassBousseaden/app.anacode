@@ -1,39 +1,39 @@
 <script>
 
-	import { Button } from '$lib/components/ui/button/index.js';
-	import { Input } from '$lib/components/ui/input/index.js';
-	import { Label } from '$lib/components/ui/label/index.js';
-	import { Textarea } from '$lib/components/ui/textarea/index.js';
-	import * as Select from '$lib/components/ui/select/index.js';
-	import { Plus, Minus, ChevronRight } from 'lucide-svelte';
-	import { Separator } from '$lib/components/ui/separator/index.js';
-	import { z } from 'zod';
-	import { localStorageJsonWritable } from '$lib/app/utils.js';
+  import { Button } from '$lib/components/ui/button/index.js';
+  import { Input } from '$lib/components/ui/input/index.js';
+  import { Label } from '$lib/components/ui/label/index.js';
+  import { Textarea } from '$lib/components/ui/textarea/index.js';
+  import * as Select from '$lib/components/ui/select/index.js';
+  import { Plus, Minus, ChevronRight } from 'lucide-svelte';
+  import { Separator } from '$lib/components/ui/separator/index.js';
+  import { z } from 'zod';
+  import { localStorageJsonWritable } from '$lib/app/utils.js';
 
-	export let title;
-	export let difficulty;
-	export let description;
-	export let examples;
+  export let title;
+  export let difficulty;
+  export let description;
+  export let examples;
 
-	export let errors = {};
+  export let errors = {};
 
-	let diff = { value: difficulty, label: difficulty };
+  let diff = { value: difficulty, label: difficulty };
 
-	$: difficulty = diff.value;
-	$: examples = [...examples];
+  $: difficulty = diff.value;
+  $: examples = [...examples];
 
 
-	function addExample() {
-		examples = [...examples, { input: '', output: '' }];
-	}
+  function addExample() {
+    examples = [...examples, { input: '', output: '' }];
+  }
 
-	function removeExample() {
-		examples = examples.slice(0, -1);
-	}
+  function removeExample() {
+    examples = examples.slice(0, -1);
+  }
 
 </script>
 
-<form class="px-1 flex flex-col flex-grow space-y-4">
+<form class="px-1 flex flex-col flex-grow space-y-4 ">
 	<div>
 		<Label for="title">Title</Label>
 		<Input
@@ -65,11 +65,12 @@
 
 	<div>
 		<Label for="description">Description</Label>
+
 		<Textarea
 			id="description"
 			bind:value={description}
 			placeholder="Enter description"
-			class="min-h-[120px]"
+			class="min-h-[360px]"
 		/>
 		{#if errors.description}
 			<p class="text-destructive text-sm">{errors.description[0]}</p>
@@ -81,7 +82,7 @@
 		{#each examples as example, index}
 			{#if index > 0}
 				<Separator class="my-2" />
-			{/if                                        }
+			{/if                                                   }
 			<div class="space-y-2 mt-2">
 				<Input
 					placeholder="Input"

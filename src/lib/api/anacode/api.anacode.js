@@ -19,7 +19,7 @@ async function getUserProblems() {
 		await handleError(response);
 	}
 
-	return response.json();
+	return await response.json();
 }
 
 // Get Details of a Specific Problem
@@ -99,7 +99,21 @@ async function getSubmissionsForProblem(problemId) {
 	return response.json();
 }
 
+async function getUserInfo() {
+	const response = await fetch(`${url}/users/user_info`, {
+		method: 'GET',
+		credentials: 'include'
+	});
+
+	if (!response.ok) {
+		await handleError(response);
+	}
+
+	return response.json();
+}
+
 export {
+	getUserInfo,
 	getUserProblems,
 	createUserProblem,
 	getUserProblemById,
