@@ -1,19 +1,16 @@
 <script>
   import { base } from '$app/paths';
+  import ArrowUpRight from 'lucide-svelte/icons/arrow-up-right';
+  import { Button } from '$lib/components/ui/button/index.js';
+  import { Badge } from '$lib/components/ui/badge/index.js';
+  import { goto } from '$app/navigation';
+  import { languageMap } from '$lib/app/utils.js';
+  import * as Card from '$lib/components/ui/card/index.js';
+  import * as Table from '$lib/components/ui/table/index.js';
+
 
   export let data;
   const { problems } = data;
-  import ArrowUpRight from 'lucide-svelte/icons/arrow-up-right';
-  import { Button } from '$lib/components/ui/button/index.js';
-  import * as Card from '$lib/components/ui/card/index.js';
-  import * as Table from '$lib/components/ui/table/index.js';
-  import { Badge } from '$lib/components/ui/badge/index.js';
-  import { goto } from '$app/navigation';
-
-  // Map language IDs to readable language names
-  const languageMap = {
-    71: 'Python 3'
-  };
 </script>
 
 <Card.Root class="xl:col-span-2 w-2/3">

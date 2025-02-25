@@ -47,3 +47,8 @@ export function jsonToQueryParams(json) {
 	const params = new URLSearchParams(json);
 	return params.toString(); // Returns query string
 }
+
+// Map language IDs to readable language names
+export const languageMap = {
+  71: 'Python 3'
+};

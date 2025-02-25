@@ -16,6 +16,7 @@
   import { deleteUserProblem, getUserProblems } from '$lib/api/anacode/api.anacode.js';
   import { toast } from 'svelte-sonner';
   import { writable } from 'svelte/store';
+  import { languageMap } from '$lib/app/utils.js';
 
   export let data;
   let problems = writable(data.problems);
@@ -34,7 +35,7 @@
 
 </script>
 {#if $problems}
-	<Card.Root class="xl:col-span-1 w-full w-2/3 mx-auto shadow-md">
+	<Card.Root class="xl:col-span-1 w-2/3">
 		<Card.Header class="flex flex-row items-center justify-between p-4">
 			<div class="grid gap-1">
 				<Card.Title class="text-lg font-semibold">Your Programming Problems</Card.Title>
@@ -53,29 +54,35 @@
 				<Table.Root class="w-full">
 					<Table.Header>
 						<Table.Row class="bg-muted">
-							<Table.Head>ID</Table.Head>
 							<Table.Head>Title</Table.Head>
+							<Table.Head>ID</Table.Head>
 							<Table.Head>Difficulty</Table.Head>
+							<Table.Head>Language</Table.Head>
 							<Table.Head>Last Update</Table.Head>
 							<Table.Head>Action</Table.Head>
 						</Table.Row>
 					</Table.Header>
 
 					<Table.Body>
-						{#each $problems as { id, title, difficulty, updated_at }}
+						{#each $problems as { id, title, difficulty, updated_at, language_id }}
 							<Table.Row class="hover:bg-accent transition">
-								<Table.Cell>{id}</Table.Cell>
 								<Table.Cell class="truncate max-w-xs">
 									<a href="{base}/problems/{id}" class="font-medium text-primary hover:underline">
 										{title}
 									</a>
 								</Table.Cell>
+								<Table.Cell>{id}</Table.Cell>
 								<Table.Cell>
 									<Badge>{difficulty}</Badge>
 								</Table.Cell>
+								<Table.Cell>
+									<Badge>
+										{languageMap[language_id] || "Unknown"}
+									</Badge>
+								</Table.Cell>
 								<Table.Cell>{new Date(updated_at).toLocaleString()}</Table.Cell>
 								<Table.Cell>
-									<Button href={`/my-problems/create?${jsonToQueryParams({ problem_id: id })}`}
+									<Button variant="outline" href={`/my-problems/create?${jsonToQueryParams({ problem_id: id })}`}
 													size="icon">
 										<PencilLine class="w-4 h-4" />
 									</Button>
