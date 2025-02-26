@@ -9,8 +9,9 @@ export const ssr = false;
 
 const defaultProblemDataTemplate = {
 	title: '',
-	difficulty: '',
+	difficulty: 'Easy',
 	description: '',
+	language_id: 71,
 	examples: [{ input: '', output: '' }],
 	driver_code: sample_driver_code,
 	test_code: sample_test_code
@@ -21,7 +22,6 @@ export const load = async ({ url }) => {
 		const problemParam = 'problem_id';
 		const problemId = url.searchParams.get(problemParam);
 		let problemData;
-		console.log(problemId === null, problemId);
 		if (problemId === null) {
 			problemData = defaultProblemDataTemplate;
 		} else {

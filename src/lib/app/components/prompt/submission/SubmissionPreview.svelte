@@ -35,7 +35,10 @@
 				<Tabs.Trigger value="typed_code">Code</Tabs.Trigger>
 			</Tabs.List>
 			<Tabs.Content value="status_message">
-				<ResultBlock submission={submission.result}></ResultBlock>
+				<ResultBlock stderr={submission.result}
+										 compilationOutput={submission.compile_output}
+										 stdout={submission.stdout}
+										 statusMessage={submission.status_message} />
 			</Tabs.Content>
 			<Tabs.Content value="typed_code">
 				<div class="flex min-w-0">

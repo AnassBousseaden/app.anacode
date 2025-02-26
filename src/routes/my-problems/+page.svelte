@@ -76,8 +76,8 @@
 									<Badge>{difficulty}</Badge>
 								</Table.Cell>
 								<Table.Cell>
-									<Badge>
-										{languageMap[language_id] || "Unknown"}
+									<Badge variant="secondary">
+										{languageMap[language_id].language_name || "Unknown"}
 									</Badge>
 								</Table.Cell>
 								<Table.Cell>{new Date(updated_at).toLocaleString()}</Table.Cell>

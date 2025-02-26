@@ -50,5 +50,16 @@ export function jsonToQueryParams(json) {
 
 // Map language IDs to readable language names
 export const languageMap = {
-  71: 'Python 3'
+	71: {
+		language_name: 'Python (3.8.1)',
+		monaco_editor_language_name: 'python'
+	},
+	65: {
+		language_name: 'OCaml (4.09.0)',
+		monaco_editor_language_name: 'ocaml'
+	},
+	91: {
+		language_name: 'Java (JDK 17.0.6)',
+		monaco_editor_language_name: 'java'
+	}
 };

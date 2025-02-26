@@ -1,14 +1,15 @@
 <script>
-	import Description from './Description.svelte';
-	import Example from './Example.svelte';
-	import * as Card from '$lib/components/ui/card/index.js';
-	import { Separator } from '$lib/components/ui/separator/index.js';
-	import { Badge } from '$lib/components/ui/badge/index.js';
+  import Description from './Description.svelte';
+  import Example from './Example.svelte';
+  import * as Card from '$lib/components/ui/card/index.js';
+  import { Separator } from '$lib/components/ui/separator/index.js';
+  import { Badge } from '$lib/components/ui/badge/index.js';
 
-	export let title;
-	export let description;
-	export let examples;
-	export let difficulty;
+  export let title;
+  export let description;
+  export let examples;
+  export let difficulty;
+  export let language_name;
 </script>
 
 <Card.Root class="h-full overflow-auto flex-grow">
@@ -21,6 +22,7 @@
 		<Card.Description>
 			<Separator />
 			<Badge class="my-2">{difficulty}</Badge>
+			<Badge variant="secondary" class="my-2">{language_name}</Badge>
 			<Separator />
 		</Card.Description>
 	</Card.Header>

@@ -13,7 +13,7 @@
   import Editor from '$lib/app/components/editor/Editor.svelte';
   import PromptContent from '$lib/app/components/prompt/PromptContent.svelte';
 
-  import { localStorageJsonWritable } from '$lib/app/utils.js';
+  import { languageMap, localStorageJsonWritable } from '$lib/app/utils.js';
   import { writable } from 'svelte/store';
   import { z } from 'zod';
   import { toast } from 'svelte-sonner';
@@ -223,6 +223,7 @@
 					bind:description={$form.description}
 					bind:examples={$form.examples}
 					bind:errors={descriptionFormErrors}
+					bind:language_id={$form.language_id}
 				/>
 			{:else if $currentStep === 2}
 				<PromptContent
@@ -233,7 +234,8 @@
 				/>
 			{:else if $currentStep === 3}
 				<div class="flex flex-grow overflow-hidden">
-					<Editor readOnly={true} codeStore={$form.driver_code} />
+					<Editor language={languageMap[$form.language_id].monaco_editor_language_name} readOnly={true}
+									codeStore={$form.driver_code} />
 				</div>
 			{/if}
 		</div>
@@ -275,14 +277,17 @@
 					bind:description={$form.description}
 					bind:examples={$form.examples}
 					bind:difficulty={$form.difficulty}
+					bind:language_name={languageMap[$form.language_id].language_name}
 				/>
 			{:else if $currentStep === 2}
 				<div class="flex flex-grow overflow-hidden">
-					<Editor bind:codeStore={$form.driver_code} />
+					<Editor language={languageMap[$form.language_id].monaco_editor_language_name}
+									bind:codeStore={$form.driver_code} />
 				</div>
 			{:else if $currentStep === 3}
 				<div class="flex flex-grow overflow-hidden">
-					<Editor bind:codeStore={$form.test_code} />
+					<Editor language={languageMap[$form.language_id].monaco_editor_language_name}
+									bind:codeStore={$form.test_code} />
 				</div>
 			{:else if $currentStep === 4}
 				<Tabs.Root value="prompt" class="flex flex-col flex-grow shrink min-h-0">
@@ -305,13 +310,15 @@
 
 					<Tabs.Content value="driver_code" class="flex-grow overflow-auto">
 						<div class="h-full flex flex-grow overflow-hidden">
-							<Editor readOnly={true} codeStore={$form.driver_code} />
+							<Editor language={languageMap[$form.language_id].monaco_editor_language_name} readOnly={true}
+											codeStore={$form.driver_code} />
 						</div>
 					</Tabs.Content>
 
 					<Tabs.Content value="test_code" class="flex-grow overflow-auto">
 						<div class="h-full flex flex-grow overflow-hidden">
-							<Editor readOnly={true} codeStore={$form.test_code} />
+							<Editor language={languageMap[$form.language_id].monaco_editor_language_name} readOnly={true}
+											codeStore={$form.test_code} />
 						</div>
 					</Tabs.Content>
 				</Tabs.Root>

@@ -8,18 +8,22 @@
   import { Plus, Minus, ChevronRight } from 'lucide-svelte';
   import { Separator } from '$lib/components/ui/separator/index.js';
   import { z } from 'zod';
-  import { localStorageJsonWritable } from '$lib/app/utils.js';
+  import { languageMap, localStorageJsonWritable } from '$lib/app/utils.js';
 
   export let title;
   export let difficulty;
   export let description;
   export let examples;
+  export let language_id;
 
   export let errors = {};
+  console.log('language_id:' + language_id);
 
   let diff = { value: difficulty, label: difficulty };
+  let lang = { value: language_id, label: languageMap[language_id].language_name };
 
   $: difficulty = diff.value;
+  $: language_id = lang.value;
   $: examples = [...examples];
 
 
@@ -63,6 +67,27 @@
 		{/if}
 	</div>
 
+
+	<div>
+		<Label for="Language">Language</Label>
+		<Select.Root bind:selected={lang}>
+			<Select.Trigger class="w-full">
+				<Select.Value placeholder="Language" />
+			</Select.Trigger>
+			<Select.SelectContent>
+				{#each Object.entries(languageMap) as [id, langObj]}
+					<Select.SelectItem value={+id}>
+						{langObj.language_name}
+					</Select.SelectItem>
+				{/each}
+			</Select.SelectContent>
+		</Select.Root>
+		{#if errors.language}
+			<p class="text-destructive text-sm">{errors.language[0]}</p>
+		{/if}
+	</div>
+
+
 	<div>
 		<Label for="description">Description</Label>
 
@@ -82,7 +107,7 @@
 		{#each examples as example, index}
 			{#if index > 0}
 				<Separator class="my-2" />
-			{/if                                                   }
+			{/if                                                           }
 			<div class="space-y-2 mt-2">
 				<Input
 					placeholder="Input"

@@ -6,7 +6,6 @@ import { getUserProblems } from '$lib/api/anacode/api.anacode.js';
 export const load = async () => {
 	try {
 		const problems = await getUserProblems();
-		console.log('fetched problems', problems);
 		return { problems: problems };
 	} catch (err) {
 		// Return the error so the page can render a friendly message

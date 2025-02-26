@@ -11,7 +11,7 @@
   } from '$lib/api/anacode/submissions.js';
   import ResultBlock from '$lib/app/components/result/ResultBlock.svelte';
   import * as Resizable from '$lib/components/ui/resizable';
-  import { localStorageWritable } from '$lib/app/utils.js';
+  import { localStorageWritable, languageMap } from '$lib/app/utils.js';
   import { writable } from 'svelte/store';
   import { onMount } from 'svelte';
   import { toast } from 'svelte-sonner';
@@ -26,7 +26,8 @@
   let pane;
   let mainPaneGroupApi;
 
-  const { id, title, description, examples, driver_code, difficulty } = data;
+  const { id, title, description, examples, driver_code, difficulty, language_id } = data;
+  console.log(languageMap[language_id].monaco_editor_language_name);
 
 
   // ----- fetch submissions handling
@@ -109,7 +110,8 @@
 	<Resizable.Pane defaultSize={34} className="flex flex-grow shrink min-h-0 min-w-0"
 									style="display: flex; overflow-x: auto">
 		<div class="flex flex-grow flex-col shrink min-w-[400px] min-h-0">
-			<Prompt bind:tabs={$tabs} {title} {description} {examples} {difficulty} submissions={$submissions.reverse()} />
+			<Prompt bind:tabs={$tabs} {title} {description} {examples} {difficulty}
+							language_name={languageMap[language_id].language_name} submissions={$submissions.reverse()} />
 		</div>
 	</Resizable.Pane>
 
@@ -125,13 +127,17 @@
 				<Resizable.Pane defaultSize={100} class="flex flex-col overflow-auto gap-2">
 					<EditorHeader {handleSubmit} submissionStatus={$submission.status}
 												detail={$submission.result.status_message} />
-					<Editor bind:codeStore={$codeStore} />
+					<Editor bind:codeStore={$codeStore} language={languageMap[language_id].monaco_editor_language_name} />
 				</Resizable.Pane>
 
 				<Resizable.Handle withHandle />
 
 				<Resizable.Pane bind:pane={pane} defaultSize={0} class="overflow-hidden flex">
-					<ResultBlock collapse={() => pane.resize(0)} submission={$submission.result.stderr} />
+					<ResultBlock collapse={() => pane.resize(0)}
+											 stderr={$submission.result.stderr}
+											 compilationOutput={$submission.result.compile_output}
+											 stdout={$submission.result.stdout}
+											 statusMessage={$submission.result.status_message} />
 				</Resizable.Pane>
 
 			</Resizable.PaneGroup>

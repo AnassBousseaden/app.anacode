@@ -2,7 +2,6 @@
   import * as Tabs from '$lib/components/ui/tabs/index.js';
   import * as Card from '$lib/components/ui/card/index.js';
   import { Separator } from '$lib/components/ui/separator/index.js';
-  import ResultBlock from '$lib/app/components/result/ResultBlock.svelte';
   import PromptContent from '$lib/app/components/prompt/PromptContent.svelte';
   import SubmissionPreview from '$lib/app/components/prompt/submission/SubmissionPreview.svelte';
 
@@ -12,6 +11,7 @@
   export let difficulty;
   export let submissions;
   export let tabs;
+  export let language_name;
 </script>
 
 
@@ -27,6 +27,7 @@
 			description={description}
 			examples={examples}
 			difficulty={difficulty}
+			language_name={language_name}
 		/>
 	</Tabs.Content>
 
