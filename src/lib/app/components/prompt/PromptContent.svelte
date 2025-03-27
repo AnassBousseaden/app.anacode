@@ -9,20 +9,25 @@
   export let description;
   export let examples;
   export let difficulty;
-  export let language_name;
+  export let languages;
 </script>
 
 <Card.Root class="h-full overflow-auto flex-grow">
 	<Card.Header class="space-y-2">
 		<Card.Title>
-			<h1 class="scroll-m-20 text-3xl font-extrabold tracking-tight lg:text-3xl">
+			<h1 class="scroll-m-20 text-3xl font-extrabold tracking-tight lg:text-3xl break-words">
 				{title}
 			</h1>
 		</Card.Title>
 		<Card.Description>
 			<Separator />
 			<Badge class="my-2">{difficulty}</Badge>
-			<Badge variant="secondary" class="my-2">{language_name}</Badge>
+			<Separator />
+			<div class="space-x-1">
+				{#each languages as language_name}
+					<Badge variant="secondary" class="my-2">{language_name}</Badge>
+				{/each}
+			</div>
 			<Separator />
 		</Card.Description>
 	</Card.Header>

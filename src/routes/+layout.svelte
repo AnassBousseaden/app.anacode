@@ -3,11 +3,11 @@
   import '../app.css';
   import { ModeWatcher } from 'mode-watcher';
   import { Toaster } from '$lib/components/ui/sonner';
+  import EditorSettingsModal from '$lib/app/components/editor/EditorSettingsModal.svelte';
 </script>
 
 <svelte:head>
 	<title>AnaCode</title>
-	<!--	<link rel="icon" type="image/svg+xml" href="/codepen.svg" />-->
 	<link
 		rel="icon"
 		type="image/svg+xml"
@@ -16,6 +16,8 @@
 </svelte:head>
 
 <ModeWatcher />
+<EditorSettingsModal/>
+
 <Toaster expand={true} richColors />
 <div class="app-container p-2">
 	<Header />
@@ -23,6 +25,7 @@
 		<slot />
 	</div>
 </div>
+
 
 
 <style>
@@ -35,10 +38,11 @@
 
     .layout-container {
         flex-grow: 1;
+        flex-direction: column;
         display: flex;
         justify-content: center;
         align-items: center;
-        width: 100%;
+        height: 100%;
         overflow: hidden;
     }
 </style>

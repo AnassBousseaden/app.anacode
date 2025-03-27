@@ -2,9 +2,7 @@
   import * as Dialog from '$lib/components/ui/dialog/index.js';
   import * as AlertDialog from '$lib/components/ui/alert-dialog/index.js';
   import { Button } from '$lib/components/ui/button/index.js';
-  import { Input } from '$lib/components/ui/input/index.js';
-  import { Label } from '$lib/components/ui/label/index.js';
-  import { Code, FolderCode, Pencil, PencilLine, Plus, PlusCircle, Trash, Trash2 } from 'lucide-svelte';
+  import { FolderPlus, PencilLine, Trash2 } from 'lucide-svelte';
   import { base } from '$app/paths';
   import { Badge } from '$lib/components/ui/badge/index.js';
   import ArrowUpRight from 'lucide-svelte/icons/arrow-up-right';
@@ -12,45 +10,48 @@
   import * as Table from '$lib/components/ui/table/index.js';
   import * as Tooltip from '$lib/components/ui/tooltip/index.js';
   import NoProblems from '$lib/app/components/create/NoProblems.svelte';
-  import { jsonToQueryParams } from '$lib/app/utils.js';
-  import { deleteUserProblem, getUserProblems } from '$lib/api/anacode/api.anacode.js';
+  import { getProgrammingLanguageNameFromID, jsonToQueryParams } from '$lib/app/utils.js';
+  import { deleteUserProblem } from '$lib/api/anacode/api.anacode.ts';
   import { toast } from 'svelte-sonner';
   import { writable } from 'svelte/store';
-  import { languageMap } from '$lib/app/utils.js';
+  import { goto } from '$app/navigation';
 
   export let data;
-  let problems = writable(data.problems);
-  $: problems.set(data.problems);
+  let { problems, programmingLanguages } = data;
 
 
   async function deleteProblem(problem_id) {
     try {
       await deleteUserProblem(problem_id);
-      $problems = $problems.filter(problem => problem.id !== problem_id);
+      problems = problems.filter(problem => problem.id !== problem_id);
       toast.success(`problem [${problem_id}] deleted`);
     } catch (err) {
       toast.error(err.message);
     }
   }
 
+  function chooseLanguage(language_id) {
+    goto(`/my-problems/create?${jsonToQueryParams({ language_id: language_id })}`);
+  }
+
+  const showSuccessModal = writable(false);
+
 </script>
-{#if $problems}
-	<Card.Root class="xl:col-span-1 w-2/3">
-		<Card.Header class="flex flex-row items-center justify-between p-4">
-			<div class="grid gap-1">
-				<Card.Title class="text-lg font-semibold">Your Programming Problems</Card.Title>
-				<Card.Description class="text-sm text-muted-foreground">
-					Manage your created problems
-				</Card.Description>
+{#if problems}
+	<Card.Root class="flex flex-col items-stretch overflow-hidden xl:col-span-1 w-2/3">
+		<Card.Header class="flex flex-row items-center">
+			<div class="grid gap-2">
+				<Card.Title>Your Programming Problems</Card.Title>
+				<Card.Description>Manage your created problems</Card.Description>
 			</div>
-			<Button href="{base}/my-problems/create" class="gap-2">
-				<PlusCircle class="h-4 w-4" />
+			<Button on:click={() => $showSuccessModal = true} size="sm" class="ml-auto gap-1">
+				<FolderPlus class="h-4 w-4" />
 				New Problem
 			</Button>
 		</Card.Header>
 
-		<Card.Content class="overflow-x-auto">
-			{#if $problems.length > 0}
+		<Card.Content class="flex flex-col items-stretch overflow-auto">
+			{#if problems.length > 0}
 				<Table.Root class="w-full">
 					<Table.Header>
 						<Table.Row class="bg-muted">
@@ -64,7 +65,7 @@
 					</Table.Header>
 
 					<Table.Body>
-						{#each $problems as { id, title, difficulty, updated_at, language_id }}
+						{#each problems as { id, title, difficulty, updated_at, language_id }}
 							<Table.Row class="hover:bg-accent transition">
 								<Table.Cell class="truncate max-w-xs">
 									<a href="{base}/problems/{id}" class="font-medium text-primary hover:underline">
@@ -77,11 +78,11 @@
 								</Table.Cell>
 								<Table.Cell>
 									<Badge variant="secondary">
-										{languageMap[language_id].language_name || "Unknown"}
+										{getProgrammingLanguageNameFromID(programmingLanguages, language_id)}
 									</Badge>
 								</Table.Cell>
 								<Table.Cell>{new Date(updated_at).toLocaleString()}</Table.Cell>
-								<Table.Cell>
+								<Table.Cell class="text-nowrap">
 									<Button variant="outline" href={`/my-problems/create?${jsonToQueryParams({ problem_id: id })}`}
 													size="icon">
 										<PencilLine class="w-4 h-4" />
@@ -92,7 +93,7 @@
 												<Trash2 class="w-4 h-4" />
 											</Button>
 										</AlertDialog.Trigger>
-										<AlertDialog.Content>
+										<AlertDialog.Content class="text-nowrap">
 											<AlertDialog.Header>
 												<AlertDialog.Title>Are you absolutely sure?</AlertDialog.Title>
 												<AlertDialog.Description>
@@ -118,3 +119,29 @@
 		</Card.Content>
 	</Card.Root>
 {/if}
+
+<Dialog.Root
+	bind:open={$showSuccessModal}
+>
+	<Dialog.Content class="sm:max-w-[425px]">
+		<Dialog.Header>
+			<Dialog.Title>
+        <span class="flex items-center gap-2">
+            <FolderPlus size={20} /> New Problem
+        </span>
+			</Dialog.Title>
+			<Dialog.Description>
+				Choose a programming language for your new problem.
+			</Dialog.Description>
+		</Dialog.Header>
+
+		<div class="flex flex-col space-y-2 my-4">
+			{#each programmingLanguages as { id, name }}
+				<Button on:click={() => chooseLanguage(id)}>
+					{name}
+				</Button>
+			{/each}
+		</div>
+
+	</Dialog.Content>
+</Dialog.Root>

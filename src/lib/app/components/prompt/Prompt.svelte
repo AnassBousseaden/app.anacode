@@ -11,7 +11,8 @@
   export let difficulty;
   export let submissions;
   export let tabs;
-  export let language_name;
+  export let languages;
+  export let programmingLanguages;
 </script>
 
 
@@ -27,14 +28,14 @@
 			description={description}
 			examples={examples}
 			difficulty={difficulty}
-			language_name={language_name}
+			languages={languages}
 		/>
 	</Tabs.Content>
 
 	<Tabs.Content value="submissions" class="flex-grow overflow-hidden">
 
 		<Card.Root class="card-root flex flex-col h-full w-full">
-			<Card.Header class="card-header space-y-2">
+			<Card.Header class="space-y-2">
 				<Card.Title>Submissions</Card.Title>
 				<Card.Description>
 					Checkout your submissions here
@@ -43,11 +44,12 @@
 			</Card.Header>
 			<Card.Content class="flex flex-col flex-grow overflow-auto">
 				<ol class="flex flex-col flex-grow sticky">
-					{#each submissions.reverse() as submission (submission.created_at)}
-						<li id={submission.created_at} class="my-2">
+					{#each $submissions as submission (submission.created_at)}
+						<li id={submission.created_at} class="my-1">
 							<SubmissionPreview
 								submission={submission}
 								submissionPreviewText={submission.status_message}
+								programmingLanguages={programmingLanguages}
 							/>
 						</li>
 					{/each}

@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { url } from '$lib/api/anacode/api.anacode.js';
+import { url } from '$lib/api/anacode/api.anacode.ts';
 
 export { url };
 const authStoreKey = 'auth_store';

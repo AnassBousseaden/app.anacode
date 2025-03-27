@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { url } from '$lib/api/anacode/api.anacode.js';
+import { url } from '$lib/api/anacode/api.anacode.ts';
 
 export { url };
 
@@ -10,8 +10,8 @@ async function handleError(response) {
 }
 
 export const pollingConfig = {
-	maxAttempts: 4,
-	interval: 1000
+	maxAttempts: 8,
+	interval: 500
 };
 
 export const SubmissionStatus = Object.freeze({
@@ -38,6 +38,8 @@ export async function postToJudge(problem_id, typed_code) {
 			'Content-Type': 'application/json'
 		},
 		body: JSON.stringify({
+			// todo: change this
+			language_id: 62,
 			typed_code: typed_code
 		})
 	});
@@ -67,7 +69,7 @@ export async function pollForResult(token) {
 	let attempts = 0;
 	while (attempts < pollingConfig.maxAttempts) {
 		const result = await getFromJudge(token);
-		if (result.status_id > 2) {
+		if (result.status_id > 1) {
 			return result;
 		}
 		attempts++;

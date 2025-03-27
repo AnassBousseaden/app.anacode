@@ -7,9 +7,10 @@
   import { writable } from 'svelte/store';
   import LogModal from '$lib/app/components/auth/LogModal.svelte';
   import { Button } from '$lib/components/ui/button/index.js';
-  import { User } from 'lucide-svelte';
+  import { LogOut, MonitorCog, User } from 'lucide-svelte';
   import { toast } from 'svelte-sonner';
   import { invalidateAll } from '$app/navigation';
+  import { editorSettings } from '$lib/app/components/editor/editor-settings.js';
 
   const modalStateLogin = writable(false);
   authStore.subscribe((userData) => {
@@ -60,14 +61,27 @@
 			>
 				<User class="h-5" />
 
-				<span class="username">{userInfo?.userInfo.user_name}</span>
 				<span class="sr-only">Toggle user menu</span>
 			</Button>
 		</DropdownMenu.Trigger>
 		<DropdownMenu.Content align="end">
-			<DropdownMenu.Label>{userInfo?.userInfo.user_name}</DropdownMenu.Label>
+			<DropdownMenu.Label>
+				{userInfo?.userInfo.user_name}
+			</DropdownMenu.Label>
 			<DropdownMenu.Separator />
-			<DropdownMenu.Item on:click={performLogout}>Logout</DropdownMenu.Item>
+			<DropdownMenu.Item class="space-x-1" on:click={() => $editorSettings.isModalOpened  = true}>
+				<MonitorCog />
+				<div>
+					Editor Settings
+				</div>
+			</DropdownMenu.Item>
+			<DropdownMenu.Separator />
+			<DropdownMenu.Item class="space-x-1" on:click={performLogout}>
+				<LogOut />
+				<div>
+					Logout
+				</div>
+			</DropdownMenu.Item>
 		</DropdownMenu.Content>
 	</DropdownMenu.Root>
 {/if}

@@ -9,14 +9,34 @@
   import cssWorker from 'monaco-editor/esm/vs/language/css/css.worker?worker';
   import htmlWorker from 'monaco-editor/esm/vs/language/html/html.worker?worker';
   import tsWorker from 'monaco-editor/esm/vs/language/typescript/ts.worker?worker';
+  import { cn } from '$lib/utils.js';
+  import { editorSettings } from '$lib/app/components/editor/editor-settings.js';
+  import { writable } from 'svelte/store';
+
+  // store
+  export let tabSize = $editorSettings.tabSize;
+  export let fontSize = $editorSettings.fontSize;
 
   export let codeStore = '';
-  export let fontSize = 17;
+  export let changeRequest = writable(0);
   export let language = 'python';
-  export let tabSize = 2;
   export let readOnly = false;
   export let fit = false;
   export let wordWrap = 'on';
+  export let className = '';
+
+  $: {
+    if (editor) {
+      const model = editor.getModel();
+      monaco.editor.setModelLanguage(model, language);
+      editor.setModel(model);
+    }
+  }
+
+  export function setEditorContent(newContent) {
+    if (!editor) return;
+    editor.setValue(newContent);
+  }
 
   let editorDiv;
   let editor;
@@ -32,7 +52,6 @@
 
   self.MonacoEnvironment = {
     getWorker: function(_moduleId, label) {
-      console.log(label);
       if (label === 'json') {
         return new jsonWorker();
       }
@@ -61,6 +80,7 @@
       minimap: {
         enabled: false
       },
+      insertSpaces: true,
       fontFamily: 'JetBrains Mono',
       tabSize: tabSize,
       scrollBeyond: false,
@@ -75,8 +95,25 @@
       rulers: []
     });
 
+    changeRequest.subscribe(() => {
+      if (editor) {
+        console.log('change Request');
+        editor.setValue(codeStore);
+        editor.updateOptions({ readOnly: readOnly });
+      }
+    });
+
+    editorSettings.subscribe((settings) => {
+      editor?.updateOptions({
+        fontSize: settings.fontSize,
+        tabSize: settings.tabSize,
+        detectIndentation: false,
+        trimAutoWhitespace: true
+      });
+    });
+
     editor.onDidChangeModelContent(() => {
-      codeStore = editor.getValue();
+      codeStore = editor?.getValue();
       updateEditorHeight();
     });
 
@@ -86,7 +123,6 @@
 
   onMount(async () => {
     initMonaco($mode === 'dark');
-    console.log('init finish');
 
     unsubscribe = mode.subscribe((currentMode) => {
       if (!editor) return;
@@ -116,4 +152,7 @@
   });
 </script>
 
-<div class="flex-grow overflow-hidden border-2" bind:this={editorDiv}></div>
+<div
+	class={cn("editor-container-- flex-grow overflow-hidden border-2", className)}
+	{...$$restProps}
+	bind:this={editorDiv}></div>

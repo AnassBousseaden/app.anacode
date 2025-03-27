@@ -1,33 +1,3 @@
-// File containing all the content displayed to the user rather.
-// easy way to do things even if this is not so scalable
-
-export let sample_driver_code = `# sample driver code
-from typing import List
-
-class Solution:
-  def solve(self, nums: List[int]) -> int:
-    return 0
-`;
-export let sample_test_code = `# sample test code
-import unittest
-from typing import List
-
-class TestSolution(unittest.TestCase):
-
-  def setUp(self):
-    self.solution = Solution()
-      
-  def test(self):
-    input = [0,1,0]
-    expected_output = 5
-    user_output = self.solution.solve(input)
-    self.assertEqual(user_output, expected_output)
-
-if __name__ == "__main__":
-  unittest.main(failfast=True)
-
-`;
-
 export let stepDescriptionText = {
 	title: `Write your problem description.`,
 	description: `

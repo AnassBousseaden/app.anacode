@@ -1,14 +1,21 @@
 // @ts-nocheck
 export const prerender = false;
 export const ssr = false;
-import { getUserProblems } from '$lib/api/anacode/api.anacode.js';
+import { getUserProblems, getProgrammingLanguages } from '$lib/api/anacode/api.anacode.ts';
 
 export const load = async () => {
 	try {
-		const problems = await getUserProblems();
-		return { problems: problems };
+		// Run both calls in parallel
+		const [problems, programmingLanguages] = await Promise.all([
+			getUserProblems(),
+			getProgrammingLanguages()
+		]);
+
+		return {
+			problems,
+			programmingLanguages
+		};
 	} catch (err) {
-		// Return the error so the page can render a friendly message
 		return { error: err.message };
 	}
 };

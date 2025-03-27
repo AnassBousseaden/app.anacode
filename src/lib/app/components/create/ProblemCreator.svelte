@@ -5,26 +5,20 @@
   import { Label } from '$lib/components/ui/label/index.js';
   import { Textarea } from '$lib/components/ui/textarea/index.js';
   import * as Select from '$lib/components/ui/select/index.js';
-  import { Plus, Minus, ChevronRight } from 'lucide-svelte';
+  import { Plus, Minus } from 'lucide-svelte';
   import { Separator } from '$lib/components/ui/separator/index.js';
-  import { z } from 'zod';
-  import { languageMap, localStorageJsonWritable } from '$lib/app/utils.js';
+  import { writable } from 'svelte/store';
 
   export let title;
   export let difficulty;
   export let description;
   export let examples;
-  export let language_id;
 
-  export let errors = {};
-  console.log('language_id:' + language_id);
+  export let errors = writable({});
 
   let diff = { value: difficulty, label: difficulty };
-  let lang = { value: language_id, label: languageMap[language_id].language_name };
 
   $: difficulty = diff.value;
-  $: language_id = lang.value;
-  $: examples = [...examples];
 
 
   function addExample() {
@@ -45,8 +39,8 @@
 			bind:value={title}
 			placeholder="Enter title"
 		/>
-		{#if errors.title}
-			<p class="text-destructive text-sm">{errors.title[0]}</p>
+		{#if $errors.title}
+			<p class="text-destructive text-sm">{$errors.title[0]}</p>
 		{/if}
 	</div>
 
@@ -62,31 +56,10 @@
 				<Select.SelectItem value="Hard">Hard</Select.SelectItem>
 			</Select.SelectContent>
 		</Select.Root>
-		{#if errors.difficulty}
-			<p class="text-destructive text-sm">{errors.difficulty[0]}</p>
+		{#if $errors.difficulty}
+			<p class="text-destructive text-sm">{$errors.difficulty[0]}</p>
 		{/if}
 	</div>
-
-
-	<div>
-		<Label for="Language">Language</Label>
-		<Select.Root bind:selected={lang}>
-			<Select.Trigger class="w-full">
-				<Select.Value placeholder="Language" />
-			</Select.Trigger>
-			<Select.SelectContent>
-				{#each Object.entries(languageMap) as [id, langObj]}
-					<Select.SelectItem value={+id}>
-						{langObj.language_name}
-					</Select.SelectItem>
-				{/each}
-			</Select.SelectContent>
-		</Select.Root>
-		{#if errors.language}
-			<p class="text-destructive text-sm">{errors.language[0]}</p>
-		{/if}
-	</div>
-
 
 	<div>
 		<Label for="description">Description</Label>
@@ -97,8 +70,8 @@
 			placeholder="Enter description"
 			class="min-h-[360px]"
 		/>
-		{#if errors.description}
-			<p class="text-destructive text-sm">{errors.description[0]}</p>
+		{#if $errors.description}
+			<p class="text-destructive text-sm">{$errors.description[0]}</p>
 		{/if}
 	</div>
 
@@ -107,7 +80,7 @@
 		{#each examples as example, index}
 			{#if index > 0}
 				<Separator class="my-2" />
-			{/if                                                           }
+			{/if                                                             }
 			<div class="space-y-2 mt-2">
 				<Input
 					placeholder="Input"
@@ -119,8 +92,8 @@
 				/>
 			</div>
 		{/each}
-		{#if errors.examples}
-			<p class="text-destructive text-sm">{errors.examples[0]}</p>
+		{#if $errors.examples}
+			<p class="text-destructive text-sm">{$errors.examples[0]}</p>
 		{/if}
 		<Button
 			type="button"

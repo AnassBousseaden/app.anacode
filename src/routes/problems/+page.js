@@ -1,15 +1,13 @@
 // @ts-nocheck
 export const prerender = true;
 export const ssr = false;
-import { url } from '$lib/api/anacode/submissions.js';
+import { getProgrammingLanguages, getPublicProblems } from '$lib/api/anacode/api.anacode.ts';
 
-export const load = async ({ fetch }) => {
-	const url_problem = `${url}/problems`;
-	const response = await fetch(url_problem);
-	if (!response.ok) {
-		throw new Error('Failed to fetch data');
-	}
-	const problems = await response.json();
+export const load = async () => {
+	const [problems, programmingLanguages] = await Promise.all([
+		getPublicProblems(),
+		getProgrammingLanguages()
+	]);
 
-	return { problems: problems };
+	return { problems: problems, programmingLanguages: programmingLanguages };
 };

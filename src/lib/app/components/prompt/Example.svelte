@@ -1,10 +1,10 @@
 <script>
-	import { Separator } from '$lib/components/ui/separator/index.js';
-	import * as Card from '$lib/components/ui/card/index.js';
+  import { Separator } from '$lib/components/ui/separator/index.js';
+  import * as Card from '$lib/components/ui/card/index.js';
 
-	export let input;
-	export let output;
-	export let offset;
+  export let input;
+  export let output;
+  export let offset;
 </script>
 
 <Card.Root class="w-full">
@@ -13,18 +13,17 @@
 	</Card.Header>
 
 	<Card.Content class="space-y-3 p-4">
-		<div>
-			<div class="text-sm font-medium text-muted-foreground">Input:</div>
-			<div class="rounded-md bg-muted p-2 overflow-auto">
-				<pre class="text-sm"> <code>{input}</code> </pre>
-			</div>
-		</div>
+		{@render example(input)}
 		<Separator />
-		<div>
-			<div class="text-sm font-medium text-muted-foreground">Output:</div>
-			<div class="rounded-md bg-muted p-2">
-				<pre class="text-sm"> <code>{output}</code>  </pre>
-			</div>
-		</div>
+		{@render example(output)}
 	</Card.Content>
 </Card.Root>
+
+{#snippet example(content) }
+	<div>
+		<div class="text-sm font-medium text-muted-foreground">Output:</div>
+		<div class="rounded-md bg-muted p-2 overflow-auto">
+			<pre class="text-sm"> <code>{content}</code>  </pre>
+		</div>
+	</div>
+{/snippet}
