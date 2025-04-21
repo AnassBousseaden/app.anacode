@@ -6,8 +6,6 @@
   export let descriptionWritable;
   export let examplesWritable;
   export let difficultyWritable;
-  export let language_name;
-
 
 </script>
 
@@ -17,5 +15,4 @@
 	description={$descriptionWritable}
 	difficulty={$difficultyWritable}
 	examples={$examplesWritable}
-	language_name={language_name}
 />

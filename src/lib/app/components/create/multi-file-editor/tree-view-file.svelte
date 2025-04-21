@@ -1,129 +1,105 @@
+<!-- tree-view-file.svelte -->
 <script lang="ts">
-	import { File as FileIcon, XIcon } from 'lucide-svelte';
+	import { File as FileIcon } from 'lucide-svelte';
 	import { cn } from '$lib/utils.js';
 	import { writable } from 'svelte/store';
-	import { Button } from '$lib/components/ui/button/index.js';
-	import type { File, FileComponent } from '$lib/app/components/create/multi-file-editor/file.manager.ts';
 	import type { Writable } from 'svelte/store';
 
+	import { Button } from '$lib/components/ui/button/index.js';
+	import * as Dialog from '$lib/components/ui/dialog/index.js';
+	import { Label } from '$lib/components/ui/label/index.js';
+	import { Input } from '$lib/components/ui/input/index.js';
+
+	import type { File, FileComponent } from './file.manager';
+
+	// Provided by parent:
 	export let fileComponent: FileComponent;
 	export let isReadOnly: boolean;
 
-	import * as ContextMenu from '$lib/components/ui/context-menu';
-
+	// derived references
 	let file = fileComponent.fileWritable;
-	let onDelete: (fileWritable: Writable<File>) => void = fileComponent.onDeleteFile;
-	let onSelect: (fileWritable: Writable<File>) => void = fileComponent.onSelectFile;
 
-	// Delete
-	let deleteEvent = (event: Event) => {
+	// Show/hide rename dialog
+	let showRenameDialog = false;
+	let tempName = $file.name;
+
+	function handleClick(event: MouseEvent) {
 		event.stopPropagation();
-		onDelete(file);
-	};
+		fileComponent.onSelectFile(file);
+	}
 
-	let editFileName = (name: string) => {
+	function openRenameDialog(event: MouseEvent) {
+		event.stopPropagation();
 		if (!$file.canRename || isReadOnly) return;
-		$file.name = name;
-	};
-
-	let onBlurEvent = () => {
-		editFileName($editStore.name);
-		$editStore.isEditing = false;
-	};
-
-
-	function autoFocus(node) {
-		node.focus();
+		tempName = $file.name;
+		showRenameDialog = true;
 	}
 
-	let onKeyDown = (event: KeyboardEvent) => {
-		if (event.key === 'Enter') {
-			editFileName($editStore.name);
-			$editStore.isEditing = false;
-		} else if (event.key === 'Escape') {
-			$editStore.isEditing = false;
-			$editStore.name = $file.name;
-		} else event.stopPropagation();
+	function confirmRename() {
+		if (!$file.canRename || isReadOnly) return;
+		// Let the parent or the parent’s controller handle rename,
+		// or do it directly if you prefer:
+		$file.name = tempName;
+		showRenameDialog = false;
+	}
+
+	function handleDelete(event: MouseEvent) {
+		event.stopPropagation();
+		if (!$file.canDelete || isReadOnly) return;
+		fileComponent.onDeleteFile(file);
+	}
+
+	// If you want a context menu, you can let the parent handle it:
+	export let onContextMenu: () => void = () => {
 	};
 
-	interface EditState {
-		name: string;
-		isEditing: boolean;
+	function handleContextMenu(event: MouseEvent) {
+		if (onContextMenu) onContextMenu();
+		event.preventDefault();
+		event.stopPropagation();
 	}
-
-	let editStore: Writable<EditState> = writable({
-			name: $file.name,
-			isEditing: false
-		}
-	);
-
-	function handleEvent(event: MouseEvent) {
-		// Differentiate between single and double click
-		if (event.detail === 1) {
-			onSelect(file);
-		} else if (event.detail === 2) {
-			$editStore.isEditing = true;
-			console.log('dblclicked');
-		}
-	}
-
-
 </script>
 
+<Button
+	variant="link"
+	on:click={handleClick}
+	oncontextmenu={handleContextMenu}
 
-<ContextMenu.Root>
-	<ContextMenu.Trigger>
-		<Button
-			variant='link'
-			class={
-	cn(
-    'root-7',
-    'p-0 h-6',
-    'text-secondary-foreground',
-    'flex flex-nowrap gap-1 flex-1',
-    'rounded-l-none',
-		$file.isSelected && 'bg-secondary/60 border-secondary ',
-		)
-	}
-			onclick={handleEvent}
-		>
-			<FileIcon class="size-4" />
-			<div class="flex-grow">
-				{#if $editStore.isEditing}
-					<input
-						class={cn(
-				"border-input placeholder:text-muted-foreground focus-visible:ring-ring flex rounded-md border bg-transparent px-3 shadow-sm transition-colors file:border-0 file:bg-transparent file:font-medium focus-visible:outline-none focus-visible:ring-1 disabled:cursor-not-allowed disabled:opacity-50",
-				"p-0",
-				"flex-grow",
-			)}
-						type="text"
-						bind:value={$editStore.name}
-						onblur={onBlurEvent}
-						onclick={(event: Event) =>  event.stopPropagation()}
-						onkeydown={onKeyDown}
-						use:autoFocus
-					/>
-				{:else }
-					<div
-						class="flex flex-grow flex-col justify-center items-start border border-transparent h-6 text-nowrap">{$file.name}</div>
-				{/if}
+	class={cn(
+		'p-0 h-6 w-full flex gap-1 items-center text-secondary-foreground',
+		$file.isSelected && 'bg-secondary/60 border-secondary',
+		""
+	)}
+>
+	<FileIcon class="size-4" />
+	<div class="flex-grow text-start text-sm">
+		{$file.name}
+	</div>
+</Button>
+
+<Dialog.Root bind:open={showRenameDialog}>
+	<Dialog.Content class="sm:max-w-[425px]">
+		<Dialog.Header>
+			<Dialog.Title>Rename File</Dialog.Title>
+			<Dialog.Description>
+				Enter the new filename, then click “Save changes.”
+			</Dialog.Description>
+		</Dialog.Header>
+		<div class="grid gap-4 py-4">
+			<div class="grid grid-cols-4 items-center gap-4">
+				<Label for="filename" class="text-right">Filename</Label>
+				<Input
+					id="filename"
+					bind:value={tempName}
+					class="col-span-3"
+				/>
 			</div>
-			<Button onclick={deleteEvent} variant="ghost" size="icon"
-							class="p-0 h-4 w-4 ml-auto mr-1 flex-shrink-0">
-				<XIcon class="h-3 w-3" />
+		</div>
+		<Dialog.Footer>
+			<!-- Could also just call a parent-provided rename function -->
+			<Button on:click={confirmRename} type="submit">
+				Save changes
 			</Button>
-		</Button>
-
-
-	</ContextMenu.Trigger>
-	<ContextMenu.Content>
-		<ContextMenu.Item>Profile</ContextMenu.Item>
-		<ContextMenu.Item>Billing</ContextMenu.Item>
-		<ContextMenu.Item>Team</ContextMenu.Item>
-		<ContextMenu.Item>Subscription</ContextMenu.Item>
-	</ContextMenu.Content>
-</ContextMenu.Root>
-
-
-<style>
-</style>
+		</Dialog.Footer>
+	</Dialog.Content>
+</Dialog.Root>

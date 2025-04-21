@@ -1,5 +1,4 @@
 <script>
-
   import * as Collapsible from '$lib/components/ui/collapsible/index.js';
   import { Button } from '$lib/components/ui/button/index.js';
   import {
@@ -11,12 +10,6 @@
     SquareCode,
     TestTubeDiagonal
   } from 'lucide-svelte';
-
-  export let currentStep;
-  export let handleContinue;
-  export let loadingSubmit = writable(false);
-  export let handleSubmit;
-
   import {
     stepDescriptionText,
     stepDriverCodeText,
@@ -27,21 +20,20 @@
   import { Separator } from '$lib/components/ui/separator/index.js';
   import { writable } from 'svelte/store';
 
-  const steps = [
+  export let currentStep;
+  export let handleContinue;
+  export let loadingSubmit = writable(false);
+  export let handleSubmit;
+  export let steps = [
     {
       name: 'Description',
       icon: PenLine,
       description: stepDescriptionText
     },
     {
-      name: 'Driver Code',
+      name: 'Execution Context',
       icon: SquareCode,
       description: stepDriverCodeText
-    },
-    {
-      name: 'Test Code',
-      icon: TestTubeDiagonal,
-      description: stepTestCasesText
     },
     {
       name: 'Preview & Save',
@@ -80,13 +72,12 @@
 		</Collapsible.Content>
 	</Collapsible.Root>
 </div>
-<Separator class="mt-2" />
+<Separator class="my-2" />
 
-<slot/>
+<slot />
 
-<Separator class="mt-2" />
-<!-- Action Button -->
-{#if $currentStep === 4}
+<Separator class="my-auto my-2" />
+{#if $currentStep === steps.length}
 	<Button
 		disabled={$loadingSubmit}
 		onclick={handleSubmit}

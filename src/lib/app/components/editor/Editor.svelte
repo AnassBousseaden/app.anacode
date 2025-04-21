@@ -97,7 +97,6 @@
 
     changeRequest.subscribe(() => {
       if (editor) {
-        console.log('change Request');
         editor.setValue(codeStore);
         editor.updateOptions({ readOnly: readOnly });
       }

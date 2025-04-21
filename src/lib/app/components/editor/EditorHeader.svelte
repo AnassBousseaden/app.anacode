@@ -7,6 +7,7 @@
   export let restoreCodeStore;
   export let handleSubmit;
   export let disabled;
+  export let animate = true;
 
   export let languagesSelector;
   export let currentLanguageId;
@@ -19,7 +20,7 @@
 		class="h-full px-4 py-2 flex items-center gap-2 hover:bg-opacity-90 transition-all duration-200"
 		on:click={handleSubmit}
 	>
-		{#if disabled}
+		{#if disabled && animate}
 			<LoaderCircle class="mr-0 h-5 w-5 animate-spin" />
 			Running
 		{:else}

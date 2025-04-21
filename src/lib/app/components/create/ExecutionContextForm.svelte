@@ -31,40 +31,43 @@
 			{@render languageInfoCollapsable(languageInfo)}
 			<Separator />
 
-			<Card.Root>
-				<Card.Header>
-					{@render cardTitleWithButton("Compiler Options", "Specify compiler options")}
-				</Card.Header>
-				<Card.Content class="space-y-2">
-					<Form.Field {form} name="compiler_options">
-						<Form.Control let:attrs>
-							<Input
-								id="compiler_options"
-								{...attrs}
-								bind:value={$formData.compiler_options}
-								placeholder="eg -O2"
-							/>
-						</Form.Control>
-						<Form.FieldErrors />
-					</Form.Field>
+			{#if languageInfo?.compile_cmd}
+				<Card.Root>
+					<Card.Header>
+						{@render cardTitleWithButton("Compiler Options", "Specify compiler options")}
+					</Card.Header>
+					<Card.Content class="space-y-2">
+						<Form.Field {form} name="compiler_options">
+							<Form.Control let:attrs>
+								<Input
+									id="compiler_options"
+									{...attrs}
+									bind:value={$formData.compiler_options}
+									placeholder="eg -O2"
+								/>
+							</Form.Control>
+							<Form.FieldErrors />
+						</Form.Field>
 
-					<div>
-						<pre class="mb-1">Compile command:</pre>
-						<code class="block  bg-secondary text-secondary-foreground p-3 rounded-lg">
-							{#if languageInfo?.compile_cmd.includes('%s')}
-								{languageInfo.compile_cmd.split('%s')[0]}
-								{#if $formData.compiler_options?.trim().length > 0}
+						<div>
+							<pre class="mb-1">Compile command:</pre>
+							<code class="block  bg-secondary text-secondary-foreground p-3 rounded-lg">
+								{#if languageInfo?.compile_cmd?.includes('%s')}
+									{languageInfo.compile_cmd.split('%s')[0]}
+									{#if $formData.compiler_options?.trim().length > 0}
 										<span
 											class="px-1 italic rounded-md text-secondary bg-secondary-foreground break-words">
 											{$formData.compiler_options.trim()}
 										</span>
+									{/if}
+									{languageInfo.compile_cmd.split('%s')[1]}
 								{/if}
-								{languageInfo.compile_cmd.split('%s')[1]}
-							{/if}
-						</code>
-					</div>
-				</Card.Content>
-			</Card.Root>
+							</code>
+						</div>
+					</Card.Content>
+				</Card.Root>
+			{/if}
+
 
 			<Card.Root>
 				<Card.Header>
@@ -147,7 +150,7 @@
 			<Card.Root>
 				<Card.Content>
 					<div class="space-y-4">
-						{@render f("Compile command", languageInfo?.compile_cmd.replace('%s', ''))}
+						{@render f("Compile command", languageInfo?.compile_cmd?.replace('%s', ''))}
 						{@render f("Run command", languageInfo?.run_cmd) }
 						{@render f("Main source file", languageInfo?.source_file) }
 						{@render f("Solution source file", languageInfo?.solution_file) }

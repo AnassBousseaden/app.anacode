@@ -22,9 +22,7 @@
 
 </script>
 
-<div class={cn(
-  "relative flex flex-row w-full justify-between"
-)}>
+<div class="relative flex flex-row w-full justify-center">
 	{#each steps as step, index}
 		<button on:click={() => handleStepClick(index) }
 						class="relative flex flex-col items-center gap-2">
@@ -39,7 +37,7 @@
 					this={step.icon}
 					class={cn(
               "h-6 w-6",
-              getStepStatus(index) === "current" && "text-primary",
+              getStepStatus(index) === "current" && "text-primary animate-pulse",
               getStepStatus(index) === "upcoming" && "text-muted-foreground"
             )}
 				/>
@@ -48,7 +46,7 @@
 
 			<span
 				class={cn(
-          "text-center text-sm font-medium",
+          "text-center text-sm font-medium text-nowrap",
           getStepStatus(index) === "complete" && "text-primary",
           getStepStatus(index) === "current" && "text-primary",
           getStepStatus(index) === "upcoming" && "text-muted-foreground"
@@ -59,7 +57,7 @@
 		</button>
 
 		{#if index < steps.length - 1}
-			<div class="flex flex-grow items-center min-w-0">
+			<div class="flex flex-grow items-center min-w-10 max-w-[250px]">
 				<div
 					class={cn(
               "flex-grow h-[2px]",

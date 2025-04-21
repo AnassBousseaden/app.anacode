@@ -10,7 +10,8 @@ import type {
 	Error,
 	PublicProblem,
 	UserSubmission,
-	JudgeSubmission
+	JudgeSubmission,
+	PrivateExecutionContext
 } from '$lib/api/anacode/models';
 
 export const url = 'http://127.0.0.1:6603';
@@ -176,7 +177,7 @@ export async function getProgrammingLanguageById(languageId: string): Promise<La
 // Get Problem Template by Language ID
 export async function getExecutionContextByLanguageId(
 	languageId: string
-): Promise<ProblemTemplate> {
+): Promise<PrivateExecutionContext> {
 	const response = await fetch(`${url}/execution-context/${languageId}`, {
 		method: 'GET',
 		credentials: 'include'

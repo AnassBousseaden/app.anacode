@@ -8,10 +8,8 @@ class FileManager {
 	constructor(languageInfo, problemData) {
 		this.languageInfo = languageInfo;
 		this.problemData = problemData;
-		const problemID = problemData.id;
 		this.mainFileIndex = 0;
 		this.solutionFileIndex = 1;
-		this.additionalFilesIndexStart = 2;
 		this.fileCounter = 0;
 
 		this.fileList = writable([

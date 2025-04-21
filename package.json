@@ -71,6 +71,7 @@
 		"svelte-apexcharts": "^1.0.2",
 		"svelte-radix": "^2.0.1",
 		"tailwindcss-shadcn-ui": "^0.2.0",
-		"thememirror": "^2.0.1"
+		"thememirror": "^2.0.1",
+		"uuid": "^11.1.0"
 	}
 }

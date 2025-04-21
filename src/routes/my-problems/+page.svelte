@@ -1,19 +1,15 @@
 <script>
-  import * as Dialog from '$lib/components/ui/dialog/index.js';
   import * as AlertDialog from '$lib/components/ui/alert-dialog/index.js';
   import { Button } from '$lib/components/ui/button/index.js';
   import { FolderPlus, PencilLine, Trash2 } from 'lucide-svelte';
   import { base } from '$app/paths';
   import { Badge } from '$lib/components/ui/badge/index.js';
-  import ArrowUpRight from 'lucide-svelte/icons/arrow-up-right';
   import * as Card from '$lib/components/ui/card/index.js';
   import * as Table from '$lib/components/ui/table/index.js';
-  import * as Tooltip from '$lib/components/ui/tooltip/index.js';
   import NoProblems from '$lib/app/components/create/NoProblems.svelte';
   import { getProgrammingLanguageNameFromID, jsonToQueryParams } from '$lib/app/utils.js';
   import { deleteUserProblem } from '$lib/api/anacode/api.anacode.ts';
   import { toast } from 'svelte-sonner';
-  import { writable } from 'svelte/store';
   import { goto } from '$app/navigation';
 
   export let data;
@@ -30,12 +26,6 @@
     }
   }
 
-  function chooseLanguage(language_id) {
-    goto(`/my-problems/create?${jsonToQueryParams({ language_id: language_id })}`);
-  }
-
-  const showSuccessModal = writable(false);
-
 </script>
 {#if problems}
 	<Card.Root class="flex flex-col items-stretch overflow-hidden xl:col-span-1 w-2/3">
@@ -44,7 +34,7 @@
 				<Card.Title>Your Programming Problems</Card.Title>
 				<Card.Description>Manage your created problems</Card.Description>
 			</div>
-			<Button on:click={() => $showSuccessModal = true} size="sm" class="ml-auto gap-1">
+			<Button on:click={() => goto(`/my-problems/create`)} size="sm" class="ml-auto gap-1">
 				<FolderPlus class="h-4 w-4" />
 				New Problem
 			</Button>
@@ -119,29 +109,3 @@
 		</Card.Content>
 	</Card.Root>
 {/if}
-
-<Dialog.Root
-	bind:open={$showSuccessModal}
->
-	<Dialog.Content class="sm:max-w-[425px]">
-		<Dialog.Header>
-			<Dialog.Title>
-        <span class="flex items-center gap-2">
-            <FolderPlus size={20} /> New Problem
-        </span>
-			</Dialog.Title>
-			<Dialog.Description>
-				Choose a programming language for your new problem.
-			</Dialog.Description>
-		</Dialog.Header>
-
-		<div class="flex flex-col space-y-2 my-4">
-			{#each programmingLanguages as { id, name }}
-				<Button on:click={() => chooseLanguage(id)}>
-					{name}
-				</Button>
-			{/each}
-		</div>
-
-	</Dialog.Content>
-</Dialog.Root>

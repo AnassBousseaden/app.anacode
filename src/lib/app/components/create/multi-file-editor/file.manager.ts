@@ -1,8 +1,5 @@
-import type { PrivateExecutionContext } from '$lib/api/anacode/models';
-import { get, writable } from 'svelte/store';
 import type { Writable } from 'svelte/store';
-import { file } from 'jszip';
-import { undefined } from 'zod';
+import { writable } from 'svelte/store';
 
 export interface File {
 	name: string;
@@ -40,8 +37,12 @@ export interface DirectoryComponent {
 	onDeleteFile(directoryWritable: Writable<Directory>, fileWritable: Writable<File>): void;
 
 	onSelectDirectory(dirSelected: Writable<Directory>): void;
+
+	// optional if you want the DirectoryComponent to handle its own rename
+	onRenameDirectory?(directoryWritable: Writable<Directory>): void;
 }
 
+// Simple factory for a new Directory
 export function newDirectory(
 	name: string,
 	canDelete: boolean,
@@ -50,87 +51,22 @@ export function newDirectory(
 	isSelected: boolean
 ): Writable<Directory> {
 	return writable<Directory>({
-		name: name,
-		canDelete: canDelete,
-		canRename: canRename,
-		isReadOnly: isReadOnly,
+		name,
+		canDelete,
+		canRename,
+		isReadOnly,
+		isSelected,
 		files: [],
-		children: [],
-		isSelected: isSelected
+		children: []
 	});
 }
 
-var counter = 0;
-
-export function addNewDirectory(dirWritable: Writable<Directory>): void {
-	counter++;
-	const dir = get(dirWritable);
-	const newDir: Directory = {
-		canDelete: true,
-		canRename: true,
-		isReadOnly: false,
-		name: `new-dir-${counter}`,
-		files: [],
-		children: [],
-		isSelected: false
-	};
-	dir.children.push(writable(newDir));
-	dirWritable.update((dir) => dir);
+export interface DirectoryContextMenuEvent {
+	parent: Writable<Directory> | null; // null means top-level
+	node: Writable<Directory>;
 }
 
-export function addNewFile(dirWritable: Writable<Directory>): void {
-	counter++;
-	const dir = get(dirWritable);
-	const newFile: File = {
-		canDelete: true,
-		canRename: true,
-		content: '',
-		icon: undefined,
-		isReadOnly: false,
-		isSelected: false,
-		name: `new-file-${counter}.${'txt'}`
-	};
-	dir.files.push(writable(newFile));
-	dirWritable.update((dir) => dir);
-}
-
-export function deleteDirectory(
-	dirWritable: Writable<Directory>,
-	dirToDelete: Writable<Directory>
-): void {
-	const dir = get(dirWritable);
-	const length = dir.children.length;
-	dir.children = dir.children.filter((child: Writable<Directory>) => {
-		return child != dirToDelete;
-	});
-	const updatedLength = dir.children.length;
-	if (updatedLength < length) {
-		dirWritable.update((dir) => dir);
-		return;
-	}
-	for (const childDirWritable of this.children) {
-		childDirWritable.deleteDirectory(childDirWritable, dirToDelete);
-	}
-}
-
-export function deleteFile(dirWritable: Writable<Directory>, fileWritable: Writable<File>): void {
-	const dir: Directory = get(dirWritable);
-	const length = dir.files.length;
-	dir.files = dir.files.filter((childWritable: Writable<File>) => {
-		return childWritable != fileWritable;
-	});
-	const updatedLength = dir.files.length;
-	if (updatedLength < length) {
-		dirWritable.update((dir) => dir);
-		return;
-	}
-	for (const childDirWritable of dir.children) {
-		deleteFile(childDirWritable, fileWritable);
-	}
-}
-
-export class EditorManager {
-	public root: Writable<Directory>;
-	public currentFile: Writable<File> | null;
-	public currentDirectory: Writable<Directory>;
+export interface FileContextMenuEvent {
+	parent: Writable<Directory>;
+	node: Writable<File>;
 }

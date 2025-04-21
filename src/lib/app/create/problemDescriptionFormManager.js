@@ -19,7 +19,7 @@ const formDescriptionValidator = z.object({
 		.min(1, { message: 'At least one example is required' })
 });
 
-class ProblemDescriptionFormStore {
+class ProblemDescriptionFormManager {
 	get titleReadable() {
 		return this._title;
 	}
@@ -165,4 +165,4 @@ class ProblemDescriptionFormStore {
 	// }
 }
 
-export default ProblemDescriptionFormStore;
+export default ProblemDescriptionFormManager;
