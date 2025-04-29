@@ -58,6 +58,7 @@
 			<Button
 				builders={[builder]}
 				variant="secondary"
+				size="icon"
 			>
 				<User class="h-5" />
 

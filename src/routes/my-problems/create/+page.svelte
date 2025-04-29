@@ -20,48 +20,49 @@
   import ExecutionContextController
     from '$lib/app/components/create/execution-context-creator/ExecutionContextController.svelte';
   import { Button } from '$lib/components/ui/button/index.js';
-  import { FolderPlus } from 'lucide-svelte';
+  import { Code2, FolderPlus, Plus, XCircle } from 'lucide-svelte';
   import { get } from 'svelte/store';
   import ExecutionContextPreview
     from '$lib/app/components/create/execution-context-creator/ExecutionContextPreview.svelte';
   import { createUserProblem, getProgrammingLanguageById, updateUserProblem } from '$lib/api/anacode/api.anacode.ts';
-  import { getExecutionContextByLanguageId } from '$lib/api/anacode/api.anacode.ts';
   import { toast } from 'svelte-sonner';
   import EditorHeader from '$lib/app/components/editor/EditorHeader.svelte';
-  import { PrivateExecutionsContextManager } from '$lib/app/create/ExecutionContextsManager.js';
+  import { PrivateExecutionsContextManager } from '$lib/app/create/ExecutionContextsManager.ts';
+  import { goto } from '$app/navigation';
   // --- Data & Stores ---
   export let data;
   let { problemData, problemId, languages: programmingLanguages } = data;
-  const { id: problemID, title, difficulty, description, examples } = problemData;
+  let { id: problemID, title, difficulty, description, examples } = problemData;
   const currentStep = writable(1);
   let problemContentManager = new ProblemDescriptionFormManager(
     title, difficulty, description, examples
   );
   const initialExecutionContext = problemData.execution_contexts;
 
-
-  async function handleContinue() {
-    if ($currentStep === 1 && !await problemContentManager.isDescriptionValid()) {
-      return;
-    }
-    if ($currentStep === 2 && $executionContexts.size === 0) {
-      toast.error('Please add at least one execution context');
-      return;
-    }
-    $currentStep++;
-  }
-
   const execContextManager = new PrivateExecutionsContextManager(
     initialExecutionContext,
     programmingLanguages
   );
 
-  $: currentLanguageId = execContextManager.getCurrentLanguageIdStore();
-  $: executionContexts = execContextManager.getPrivateExecutionContextsStore();
-  $: currentExecutionContext = execContextManager.getCurrentPrivateExecutionContextStore();
+  let executionContexts = execContextManager.getPrivateExecutionContextsStore();
+  let currentExecutionContext = execContextManager.getCurrentPrivateExecutionContextStore();
+  let languageIds = execContextManager.getLanguageIds();
+
+  async function handleContinue() {
+    if ($currentStep === 1 && !await problemContentManager.isDescriptionValid()) {
+      return;
+    }
+    if ($currentStep === 2 && !execContextManager.validatePrivateExecutionContexts()) {
+      toast.error('Please add at least one execution context');
+      return;
+    }
+    $currentStep++;
+
+  }
 
 
   let isLoadingSubmit = writable(false);
+  let showSuccessModal = writable(false);
 
   async function handleSubmit() {
     try {
@@ -73,7 +74,7 @@
         toast.error('Please fill all required fields in the prompt');
         return;
       }
-      const execution_contexts = Array.from($executionContexts.values()).map(ctx => get(ctx));
+      const execution_contexts = execContextManager.getAllPrivateExecutionContexts();
 
       const userProblem = {
         ...validatedPromptContent,
@@ -88,7 +89,9 @@
         privateProblemCreated = await createUserProblem(userProblem);
       }
       console.log('privateProblemCreated', privateProblemCreated);
-      toast.success('Problem created successfully');
+      problemID = privateProblemCreated.id;
+      toast.success('Problem created successfully [' + `${problemID}` + ']');
+      showSuccessModal.set(true);
     } catch (e) {
       toast.error(e.message);
     } finally {
@@ -96,48 +99,43 @@
     }
   }
 
-  let executionContexts = writable(
-    new Map(
-      initialExecutionContext.map(ctx => [ctx.language_id, writable(ctx)])
-    )
-  );
+  async function performRedirect(destination) {
+    await goto(destination);
+  }
 
-  $: languagesSelector = [...$executionContexts.keys()].map(id => ({
-    value: `${id}`,
-    label: getProgrammingLanguageNameFromID(programmingLanguages, id)
-  }));
 
-  let currentLanguageId = writable(null);
-  let currentCodeStore;
+  let languagesSelector = [];
+  let currentLanguageID = writable(null);
 
-  currentLanguageId.subscribe((value) => {
-    if (value === null) return;
-    const executionCtx = get(executionContexts).get(value);
-    if (executionCtx) {
-      currentCodeStore = get(executionCtx).driver_code;
+  let currentCodeStore = '';
+
+  languageIds.subscribe((languageIds) => {
+    languagesSelector = languageIds.map((language_id) => {
+        return {
+          value: `${language_id}`, label: getProgrammingLanguageNameFromID(programmingLanguages, language_id)
+        };
+      }
+    );
+    currentLanguageID.set(null);
+    if (languageIds.length === 0) {
+      return;
     }
+    const anyID = languageIds.find(() => true);
+    currentLanguageID.set(anyID);
+    console.log('languageIds', languageIds);
+
   });
 
-  executionContexts.subscribe((map) => {
-    if (map.size > 0) {
-      currentLanguageId.update(() => {
-        if (map.size === 0) {
-          return null;
-        }
-        return map.keys().next().value;
-      });
+  currentLanguageID.subscribe((languageID) => {
+    const currentExecutionContextWritable = get(executionContexts).get(languageID);
+    const currentExecutionContext = get(currentExecutionContextWritable);
+    if (currentExecutionContext) {
+      currentCodeStore = currentExecutionContext.driver_code;
     }
   });
 
 
   let programmingLanguagesMapDetail;
-  let currentExecutionContext = writable(null);
-  executionContexts.subscribe((map) => {
-
-    if ($currentExecutionContext?.language_id && !map.has($currentExecutionContext.language_id)) {
-      currentExecutionContext.set(null);
-    }
-  });
   $: currentLanguageInfo =
     $currentExecutionContext && programmingLanguagesMapDetail
       ? programmingLanguagesMapDetail.get($currentExecutionContext.language_id)
@@ -157,97 +155,82 @@
   });
 
   async function chooseLanguage(language_id) {
-    try {
-      const ctx = await getExecutionContextByLanguageId(language_id);
-      executionContexts.update((map) => {
-        map.set(language_id, writable(ctx));
-        return map;
-      });
-      showProgrammingLanguages.set(false);
-    } catch (err) {
-      toast.error(`Failed to load template: ${err.message}`);
-    }
+    await execContextManager.addPrivateExecutionContext(language_id);
+    $showProgrammingLanguages = false;
   }
-
 
 </script>
 
-<Resizable.PaneGroup direction="horizontal" class="max-w-[98%] h-full gap-2">
+<Resizable.PaneGroup direction="horizontal" class="max-w-[98%]  h-full gap-2">
 	<Resizable.Pane
 		defaultSize={40}
-		className="overflow-auto max-w-xs"
-		style="overflow: hidden; display: flex; flex-direction: column"
+		style="overflow: auto; display: flex; flex-direction: column"
 	>
-		<StepDescription currentStep={currentStep}
-										 handleContinue={handleContinue}
-										 handleSubmit={handleSubmit}
-										 loadingSubmit={isLoadingSubmit}
-		>
-			<div class="flex flex-col flex-grow overflow-auto my-2">
-				{#if $currentStep === 1}
-					<ProblemCreatorV2
-						form={problemContentManager.form}
-					/>
-				{:else if $currentStep === 2}
-					<!--					under construction -->
-					<Card.Root class="card-root flex flex-col h-full w-full">
-						<Card.Header class="space-y-2">
-							<Card.Title>Execution Contexts</Card.Title>
-						</Card.Header>
-						<Card.Content class="flex flex-col flex-grow overflow-auto">
-							<ol class="flex flex-col flex-grow sticky">
-								{#each Array.from($executionContexts) as [languageID, executionContext] (languageID)}
-									<li id={languageID} class="my-1">
-										<ExecutionContextPreview
-											executionContext={executionContext}
-											programmingLanguages={programmingLanguages}
-											isSelected={$currentExecutionContext && $currentExecutionContext.language_id === languageID}
-											onSelect={() => {
-                        const ctx = get($executionContexts.get(languageID));
-                        currentExecutionContext.set(ctx);
-                      	console.log("ctx",ctx);
-                      }}
-											onDelete={() => {
-                        executionContexts.update((map) => {
-                          map.delete(languageID);
-                         return map;
-												})
-											}}
-										/>
-									</li>
-								{/each}
-							</ol>
-						</Card.Content>
-						<Card.Footer>
-							<Button on:click={() => $showProgrammingLanguages = true} size="sm" class="gap-1">
-								<FolderPlus class="h-4 w-4" />
-								New Execution Context
-							</Button>
-						</Card.Footer>
-					</Card.Root>
+		<div class="flex flex-col flex-1 overflow-auto min-w-[400px]">
+			<StepDescription currentStep={currentStep}
+											 handleContinue={handleContinue}
+											 handleSubmit={handleSubmit}
+											 loadingSubmit={isLoadingSubmit}
+			>
 
-				{:else if $currentStep === 3}
-					<!--					<Tabs.Root value="driver_code" class="flex flex-col flex-grow shrink min-h-0">-->
-					<!--						<Tabs.List class="grid w-full grid-cols-2">-->
-					<!--							<Tabs.Trigger value="driver_code">Driver Code Preview</Tabs.Trigger>-->
-					<!--							<Tabs.Trigger value="exec_context_config">Execution Context Configuration</Tabs.Trigger>-->
-					<!--						</Tabs.List>-->
-					<!--						<Tabs.Content value="driver_code" class="flex-grow overflow-auto">-->
-					<!--							<div class="flex-grow flex flex-col h-full overflow-hidden">-->
-					<!--								<div class="py-2 border-b flex items-center">-->
-					<!--								</div>-->
-					<!--								<div class="flex-grow flex overflow-hidden">-->
-					<!--								</div>-->
-					<!--							</div>-->
-					<!--						</Tabs.Content>-->
-					<!--						<Tabs.Content value="exec_context_config" class="flex-grow overflow-auto">-->
-					<!--							<div class="flex h-full overflow-hidden">-->
-					<!--							</div>-->
-					<!--						</Tabs.Content>-->
-					<!--					</Tabs.Root>-->
-				{/if}
-			</div>
-		</StepDescription>
+				<div class="flex flex-col flex-grow overflow-auto my-2">
+					{#if $currentStep === 1}
+						<ProblemCreatorV2
+							form={problemContentManager.form}
+						/>
+					{:else if $currentStep === 2}
+						<!--					under construction -->
+						<Card.Root class="card-root flex flex-col h-full w-full">
+							<Card.Header class="space-y-2">
+								<Card.Title>Execution Contexts</Card.Title>
+							</Card.Header>
+							<Card.Content class="flex flex-col flex-grow overflow-auto">
+								<ol class="flex flex-col flex-grow sticky">
+									{#each Array.from($executionContexts) as [languageID, executionContext] (languageID)}
+										<li id={languageID} class="my-1">
+											<ExecutionContextPreview
+												executionContext={executionContext}
+												programmingLanguages={programmingLanguages}
+												isSelected={$currentExecutionContext && $currentExecutionContext.language_id === languageID}
+												onSelect={() => execContextManager.selectPrivateExecutionContext(languageID)}
+												onDelete={() => execContextManager.deletePrivateExecutionContext(languageID)} )
+												}}
+											/>
+										</li>
+									{/each}
+								</ol>
+							</Card.Content>
+							<Card.Footer>
+								<Button type="button" variant="outline" on:click={() => $showProgrammingLanguages = true} size="icon"
+												class="ml-auto">
+									<Plus class="h-5 w-5" />
+								</Button>
+							</Card.Footer>
+						</Card.Root>
+
+					{:else if $currentStep === 3}
+						<!--					<Tabs.Root value="driver_code" class="flex flex-col flex-grow shrink min-h-0">-->
+						<!--						<Tabs.List class="grid w-full grid-cols-2">-->
+						<!--							<Tabs.Trigger value="driver_code">Driver Code Preview</Tabs.Trigger>-->
+						<!--							<Tabs.Trigger value="exec_context_config">Execution Context Configuration</Tabs.Trigger>-->
+						<!--						</Tabs.List>-->
+						<!--						<Tabs.Content value="driver_code" class="flex-grow overflow-auto">-->
+						<!--							<div class="flex-grow flex flex-col h-full overflow-hidden">-->
+						<!--								<div class="py-2 border-b flex items-center">-->
+						<!--								</div>-->
+						<!--								<div class="flex-grow flex overflow-hidden">-->
+						<!--								</div>-->
+						<!--							</div>-->
+						<!--						</Tabs.Content>-->
+						<!--						<Tabs.Content value="exec_context_config" class="flex-grow overflow-auto">-->
+						<!--							<div class="flex h-full overflow-hidden">-->
+						<!--							</div>-->
+						<!--						</Tabs.Content>-->
+						<!--					</Tabs.Root>-->
+					{/if}
+				</div>
+			</StepDescription>
+		</div>
 
 	</Resizable.Pane>
 
@@ -259,7 +242,7 @@
 		className="overflow-auto"
 		style="overflow: auto; display: flex"
 	>
-		<div class="flex flex-col flex-1 overflow-auto">
+		<div class="flex flex-col flex-1 overflow-auto min-w-[400px]">
 			{#if $currentStep === 1}
 				<PromptContentListener
 					titleWritable={problemContentManager.titleReadable}
@@ -273,18 +256,13 @@
 						<ExecutionContextController
 							languageInfo={currentLanguageInfo}
 							executionContext={$currentExecutionContext}
-							handleSubmit={(UpdatedExecutionContext) => {
-                executionContexts.update((map) => {
-                  map.set(UpdatedExecutionContext.language_id, writable(UpdatedExecutionContext));
-                  return map;
-                });
-                currentExecutionContext.set(null);
-							}}
+							handleSubmit={(newExecContext) => execContextManager.updatePrivateExecutionContext(newExecContext)}
 						/>
 					{/key}
 				{:else}
-					<!--	nothing to show message TODO-->
-
+					<div class="flex flex-1 items-center justify-center">
+						<Code2 class="w-full h-12 flex-grow text-primary" />
+					</div>
 				{/if}
 
 
@@ -307,20 +285,20 @@
 					</Tabs.Content>
 
 					<Tabs.Content value="driver_code" class="flex-grow overflow-auto">
-						{#if $currentLanguageId !== null}
+						{#if $currentLanguageID !== null}
 							<div class="flex-grow flex flex-col h-full overflow-hidden gap-2">
 								<EditorHeader handleSubmit={() => {}}
 															disabled={true}
 															animate={false}
 															restoreCodeStore={() => {}}
 															languagesSelector={languagesSelector}
-															bind:currentLanguageId={$currentLanguageId}
+															bind:currentLanguageId={$currentLanguageID}
 
 								/>
 								<Editor codeStore={currentCodeStore}
 												readOnly={true}
-												changeRequest={currentLanguageId}
-												language={langIDToMonacoLanguageName($currentLanguageId)}
+												changeRequest={currentLanguageID}
+												language={langIDToMonacoLanguageName($currentLanguageID)}
 								/>
 							</div>
 						{/if}
@@ -336,9 +314,9 @@
 	</Resizable.Pane>
 </Resizable.PaneGroup>
 
-<!--<SuccessCreateProblemModal showSuccessModal={problemContentManager.showSuccessModalWritable}-->
-<!--													 backToProblem={() => problemContentManager.backToProblem() }-->
-<!--													 viewProblem={() => problemContentManager.viewProblem()} />-->
+<SuccessCreateProblemModal bind:showSuccessModal={showSuccessModal}
+													 backToProblem={() => performRedirect('/my-problems') }
+													 viewProblem={() => performRedirect(`/problems/${problemID}`)} />
 
 
 <Dialog.Root

@@ -6,7 +6,7 @@
     ChevronsUpDown,
     CloudUpload, FolderUp,
     LoaderCircle,
-    PenLine,
+    PenLine, Save,
     SquareCode,
     TestTubeDiagonal
   } from 'lucide-svelte';
@@ -14,7 +14,7 @@
     stepDescriptionText,
     stepDriverCodeText,
     stepTestCasesText,
-    stepPreviewAndSaveText
+    stepPreviewAndSaveText, stepExecutionContextText
   } from '$lib/app/create/Content.js';
   import HeaderSteps from '$lib/app/components/create/HeaderSteps.svelte';
   import { Separator } from '$lib/components/ui/separator/index.js';
@@ -33,7 +33,7 @@
     {
       name: 'Execution Context',
       icon: SquareCode,
-      description: stepDriverCodeText
+      description: stepExecutionContextText
     },
     {
       name: 'Preview & Save',
@@ -76,23 +76,21 @@
 
 <slot />
 
-<Separator class="my-auto my-2" />
+<Separator class="my-2" />
 {#if $currentStep === steps.length}
 	<Button
 		disabled={$loadingSubmit}
 		onclick={handleSubmit}
-		class="relative flex flex-shrink-0 items-center"
+		class="relative flex flex-shrink-0 items-center justify-center text-primary-foreground"
 	>
 		{#if $loadingSubmit}
-			<LoaderCircle class="mr-2 h-4 w-4 animate-spin" />
+			<LoaderCircle class="h-4 w-4 animate-spin" />
 		{:else}
-			<FolderUp class="h-5 w-5 mr-2" />
+			<Save class="h-5 w-5 text-primary-foreground" />
 		{/if}
-		Publish
 	</Button>
 {:else}
 	<Button onclick={handleContinue} class="relative flex flex-shrink-0 items-center">
 		<ChevronRight class="h-5 w-5 mr-2" />
-		Continue
 	</Button>
 {/if}

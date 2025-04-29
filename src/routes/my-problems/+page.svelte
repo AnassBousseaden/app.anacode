@@ -13,13 +13,14 @@
   import { goto } from '$app/navigation';
 
   export let data;
-  let { problems, programmingLanguages } = data;
+  $: ({ problems, programmingLanguages } = data);
 
 
   async function deleteProblem(problem_id) {
     try {
       await deleteUserProblem(problem_id);
-      problems = problems.filter(problem => problem.id !== problem_id);
+      const filtered = problems.filter(problem => problem.id !== problem_id);
+      data = { ...data, problems: filtered };
       toast.success(`problem [${problem_id}] deleted`);
     } catch (err) {
       toast.error(err.message);
@@ -46,7 +47,7 @@
 					<Table.Header>
 						<Table.Row class="bg-muted">
 							<Table.Head>Title</Table.Head>
-							<Table.Head>ID</Table.Head>
+							<!--							<Table.Head>ID</Table.Head>-->
 							<Table.Head>Difficulty</Table.Head>
 							<Table.Head>Language</Table.Head>
 							<Table.Head>Last Update</Table.Head>
@@ -55,21 +56,26 @@
 					</Table.Header>
 
 					<Table.Body>
-						{#each problems as { id, title, difficulty, updated_at, language_id }}
+						{#each problems as { id, title, difficulty, updated_at, language_ids }}
 							<Table.Row class="hover:bg-accent transition">
 								<Table.Cell class="truncate max-w-xs">
 									<a href="{base}/problems/{id}" class="font-medium text-primary hover:underline">
 										{title}
 									</a>
 								</Table.Cell>
-								<Table.Cell>{id}</Table.Cell>
+								<!--								<Table.Cell>{id}</Table.Cell>-->
 								<Table.Cell>
 									<Badge>{difficulty}</Badge>
 								</Table.Cell>
-								<Table.Cell>
-									<Badge variant="secondary">
-										{getProgrammingLanguageNameFromID(programmingLanguages, language_id)}
-									</Badge>
+								<Table.Cell class="">
+									{#each language_ids?.slice(0, 2) as language_id }
+										<Badge variant="secondary">
+											{getProgrammingLanguageNameFromID(programmingLanguages, language_id)}
+										</Badge>
+									{/each}
+									{#if language_ids?.length > 2}
+										<Badge variant="secondary">...</Badge>
+									{/if}
 								</Table.Cell>
 								<Table.Cell>{new Date(updated_at).toLocaleString()}</Table.Cell>
 								<Table.Cell class="text-nowrap">

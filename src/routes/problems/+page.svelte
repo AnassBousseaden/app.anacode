@@ -55,12 +55,12 @@
 							</Badge>
 						</Table.Cell>
 						<Table.Cell class="">
-							{#each language_ids.slice(0, 2) as language_id }
+							{#each language_ids?.slice(0, 2) as language_id }
 								<Badge variant="secondary">
 									{getProgrammingLanguageNameFromID(programmingLanguages, language_id)}
 								</Badge>
 							{/each}
-							{#if language_ids.length > 2}
+							{#if language_ids?.length > 2}
 								<Badge variant="secondary">...</Badge>
 							{/if}
 						</Table.Cell>

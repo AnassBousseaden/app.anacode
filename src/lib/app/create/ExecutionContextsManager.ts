@@ -16,6 +16,8 @@ export class PrivateExecutionsContextManager {
 	// Programming languages available
 	private programmingLanguages: Language[];
 
+	private allLanguageIds: Writable<number[]>;
+
 	// Show programming languages dialog
 	public showProgrammingLanguages: Writable<boolean>;
 
@@ -31,6 +33,12 @@ export class PrivateExecutionsContextManager {
 		this.currentLanguageId = writable(null);
 		this.showProgrammingLanguages = writable(false);
 		this.programmingLanguages = programmingLanguages;
+		this.allLanguageIds = writable([]);
+
+		// wire all language ids
+		this.executionContexts.subscribe((map) => {
+			this.allLanguageIds.set(Array.from(map.keys()));
+		});
 
 		// Set initial language if we have contexts
 		if (initialPrivateExecutionContexts.length > 0) {
@@ -74,26 +82,15 @@ export class PrivateExecutionsContextManager {
 		return this.currentLanguageId;
 	}
 
+	public getLanguageIds(): Writable<number[] | null> {
+		return this.allLanguageIds;
+	}
+
 	/**
 	 * Gets array of all execution contexts
 	 */
 	getAllPrivateExecutionContexts(): PrivateExecutionContext[] {
 		return Array.from(get(this.executionContexts).values()).map((ctx) => get(ctx));
-	}
-
-
-	/**
-	 * Gets the current code store for the selected language
-	 */
-	getCurrentCodeStore(): string | null {
-		const languageId = get(this.currentLanguageId);
-		if (languageId === null) return null;
-
-		const executionCtx = get(this.executionContexts).get(languageId);
-		if (executionCtx) {
-			return get(executionCtx).driver_code;
-		}
-		return null;
 	}
 
 	/**
@@ -109,7 +106,12 @@ export class PrivateExecutionsContextManager {
 	async addPrivateExecutionContext(languageId: number): Promise<void> {
 		try {
 			const ctx = await getExecutionContextByLanguageId(`${languageId}`);
+			console.log('newcontext', ctx);
+			console.log('langid', languageId);
+			console.log('langid', this.executionContexts);
+
 			this.executionContexts.update((map) => {
+				console.log('map', map);
 				map.set(languageId, writable(ctx));
 				return map;
 			});

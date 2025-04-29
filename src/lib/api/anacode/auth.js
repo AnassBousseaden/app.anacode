@@ -1,8 +1,9 @@
 // @ts-nocheck
 import { url } from '$lib/api/anacode/api.anacode.ts';
 
-export { url };
+export { url, sessionAuthRessource };
 const authStoreKey = 'auth_store';
+const sessionAuthRessource = 'session:auth';
 
 // ----- network call
 export async function logout() {
@@ -21,6 +22,7 @@ export async function logout() {
 // ----- centralized login management
 
 import { writable } from 'svelte/store';
+import { invalidate } from '$app/navigation';
 
 class AuthStore {
 	#defaultValue = { isAuthenticated: false, userInfo: null };
@@ -58,6 +60,7 @@ class AuthStore {
 	// Update the authentication state on login.
 	setAuth(userInfo) {
 		console.log('auth store setAuth');
+		invalidate(sessionAuthRessource);
 		const auth = { isAuthenticated: true, userInfo: userInfo };
 		if (typeof localStorage !== 'undefined') {
 			localStorage.setItem(authStoreKey, JSON.stringify(auth));

@@ -9,6 +9,8 @@
 	import { superForm } from 'sveltekit-superforms';
 	import { zodClient } from 'sveltekit-superforms/adapters';
 	import { z } from 'zod';
+	import * as Tabs from '$lib/components/ui/tabs/index.js';
+	import * as  Form from '$lib/components/ui/form/index.js';
 	import type { Language, PrivateExecutionContext } from '$lib/api/anacode/models';
 	import MultiFileView from '$lib/app/components/create/multi-file-editor/multi-file-view.svelte';
 	import type {
@@ -44,7 +46,7 @@
 				solutionFileName
 			);
 
-			await new Promise(res => setTimeout(res, 2_000));
+			await new Promise(res => setTimeout(res, 300));
 
 			const { data: validatedData, valid } = await validateForm({ update: true });
 			if (!valid) {
