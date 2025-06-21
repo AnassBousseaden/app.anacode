@@ -42,7 +42,6 @@ export function localStorageJsonWritable(key, initialObject) {
 	};
 }
 
-
 /**
  * writable bound to localstorage
  * @param key localstorage key
@@ -58,7 +57,6 @@ export function localStorageIntegerWritable(key, initialValue) {
 	});
 	return store;
 }
-
 
 export function jsonToQueryParams(json) {
 	const params = new URLSearchParams(json);
@@ -76,6 +74,7 @@ export function langIDToMonacoLanguageName(languageID) {
 	if (languageID === 65) return 'ocaml';
 	if (languageID === 62) return 'java';
 	if (languageID === 78) return 'kotlin';
+	if (languageID === 60) return 'go';
 	return 'plaintext';
 }
 
@@ -124,6 +123,7 @@ export function fileNameToMonacoLanguageName(fileName) {
 		bash: 'shell',
 		dockerfile: 'dockerfile',
 		gitignore: 'plaintext',
+		ml: 'ocaml',
 		env: 'plaintext'
 	};
 

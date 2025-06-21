@@ -1,4 +1,3 @@
-import { fontFamily } from 'tailwindcss/defaultTheme';
 import { createPreset } from 'tailwindcss-shadcn-ui';
 
 /** @type {import('tailwindcss').Config} */

@@ -89,8 +89,8 @@
         privateProblemCreated = await createUserProblem(userProblem);
       }
       console.log('privateProblemCreated', privateProblemCreated);
+      toast.success(`Problem ${problemID ? 'updated' : 'created'} successfully [` + `${privateProblemCreated.id}` + ']');
       problemID = privateProblemCreated.id;
-      toast.success('Problem created successfully [' + `${problemID}` + ']');
       showSuccessModal.set(true);
     } catch (e) {
       toast.error(e.message);

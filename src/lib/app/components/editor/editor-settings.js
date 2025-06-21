@@ -1,4 +1,3 @@
-import { writable } from 'svelte/store';
 import { localStorageJsonWritable } from '$lib/app/utils.js';
 
 

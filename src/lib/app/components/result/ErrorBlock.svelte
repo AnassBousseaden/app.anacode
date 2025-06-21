@@ -24,5 +24,4 @@
 
 		<div class="mt-2 w-16 h-1 bg-secondary rounded-full opacity-75"></div>
 	</div>
-	<span class="sr-only">Server Error</span>
 </Card.Root>

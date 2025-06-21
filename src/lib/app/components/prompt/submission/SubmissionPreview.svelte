@@ -47,7 +47,7 @@
 			<Tabs.Content class="min-h-0 flex-1 overflow-auto" value="typed_code">
 				<div class="flex h-full ">
 					<Editor
-						wordWrap={'off'}
+						wordWrap={'on'}
 						readOnly={true}
 						language={langIDToMonacoLanguageName(submission.language_id)}
 						codeStore={submission.typed_code.trim()}

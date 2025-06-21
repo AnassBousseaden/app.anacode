@@ -2,7 +2,7 @@
   import Header from './Header.svelte';
   import '../app.css';
   import { ModeWatcher } from 'mode-watcher';
-  import { Toaster } from '$lib/components/ui/sonner';
+  import { Toaster } from '$lib/components/ui/sonner/index.js';
   import EditorSettingsModal from '$lib/app/components/editor/EditorSettingsModal.svelte';
 </script>
 
@@ -15,17 +15,16 @@
 	/>
 </svelte:head>
 
+<Toaster expand={true} />
 <ModeWatcher />
-<EditorSettingsModal/>
+<EditorSettingsModal />
 
-<Toaster expand={true} richColors />
 <div class="app-container p-2">
 	<Header />
 	<div class="layout-container">
 		<slot />
 	</div>
 </div>
-
 
 
 <style>

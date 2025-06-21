@@ -5,13 +5,13 @@ import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
 const config = {
 	kit: {
 		paths: {
-			base: process.argv.includes('dev') ? '' : '/app.anacode'
+			base: process.argv.includes('dev') ? '' : ''
 		},
 		adapter: adapter({
 			pages: 'build',
 			assets: 'build',
-			fallback: '404.html',
-			precompress: false,
+			fallback: 'index.html',
+			precompress: true,
 			strict: true
 		})
 	},

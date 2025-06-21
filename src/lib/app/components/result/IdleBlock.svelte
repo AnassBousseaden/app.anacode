@@ -20,5 +20,4 @@
 
 		<div class="mt-2 w-16 h-1 bg-secondary rounded-full opacity-75"></div>
 	</div>
-	<span class="sr-only">Idle</span>
 </Card.Root>

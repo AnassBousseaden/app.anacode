@@ -10,8 +10,7 @@
 	aria-live="polite"
 >
 	<!-- Spinning loader icon -->
-	<Loader2 size={105} class="text-primary animate-spin" />
-
-	<!-- Screen-reader-only text to announce a loading state -->
-	<span class="sr-only">Loading...</span>
+	<div>
+		<Loader2 size={105} class="text-primary animate-spin" />
+	</div>
 </Card.Root>

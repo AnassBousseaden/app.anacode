@@ -2,8 +2,6 @@
   import { onMount, onDestroy } from 'svelte';
   import * as monaco from 'monaco-editor';
   import { mode } from 'mode-watcher';
-  import nightOwl from 'monaco-themes/themes/Night Owl.json';
-  import tomorrowTheme from 'monaco-themes/themes/Tomorrow.json';
   import editorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker';
   import jsonWorker from 'monaco-editor/esm/vs/language/json/json.worker?worker';
   import cssWorker from 'monaco-editor/esm/vs/language/css/css.worker?worker';
@@ -12,6 +10,7 @@
   import { cn } from '$lib/utils.js';
   import { editorSettings } from '$lib/app/components/editor/editor-settings.js';
   import { writable } from 'svelte/store';
+  import { initMonacoThemesAndHighlighting } from '$lib/app/components/editor/monaco-themes.js';
 
   // store
   export let tabSize = $editorSettings.tabSize;
@@ -25,12 +24,19 @@
   export let wordWrap = 'on';
   export let className = '';
 
+  const lightTheme = 'one-light';
+  const darkTheme = 'night-owl';
+
+
   $: {
     if (editor) {
       const model = editor.getModel();
       monaco.editor.setModelLanguage(model, language);
       editor.setModel(model);
     }
+  }
+  $ :{
+    console.log('current language set:', language);
   }
 
   export function setEditorContent(newContent) {
@@ -69,9 +75,8 @@
   };
 
   const initMonaco = (darkMode) => {
-    monaco.editor.defineTheme('night-owl', nightOwl);
-    monaco.editor.defineTheme('tomorrow', tomorrowTheme);
-    monaco.editor.setTheme(darkMode ? 'night-owl' : 'tomorrow');
+    // monaco.editor.defineTheme('night-owl', nightOwl);
+    monaco.editor.setTheme(darkMode ? darkTheme : lightTheme);
 
     editor = monaco.editor.create(editorDiv, {
       value: codeStore,
@@ -121,11 +126,11 @@
   };
 
   onMount(async () => {
+    await initMonacoThemesAndHighlighting(lightTheme, darkTheme);
     initMonaco($mode === 'dark');
-
     unsubscribe = mode.subscribe((currentMode) => {
       if (!editor) return;
-      monaco.editor.setTheme(currentMode === 'dark' ? 'night-owl' : 'tomorrow');
+      monaco.editor.setTheme(currentMode === 'dark' ? darkTheme : lightTheme);
     });
 
     const resizeObserver = new ResizeObserver(() => {

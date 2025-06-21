@@ -80,7 +80,6 @@
 
 	function getDriverCodeFromLanguageId(languageId: number): string {
 		for (const { language_id, driver_code } of execution_contexts) {
-			console.log('driver_code', driver_code);
 			if (languageId === language_id) return driver_code;
 		}
 		return '';
@@ -141,7 +140,7 @@
 	<Resizable.Handle withHandle />
 
 	<Resizable.Pane defaultSize={66}
-									class="overflow-auto flex flex-grow shrink min-h-0"
+									class="flex flex-grow shrink min-h-0"
 									style="display: flex;overflow-x: auto">
 
 		<div class="flex flex-grow flex-col shrink min-w-[400px] min-h-0">

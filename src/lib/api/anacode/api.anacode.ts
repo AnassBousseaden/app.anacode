@@ -13,13 +13,19 @@ import type {
 	JudgeSubmission,
 	PrivateExecutionContext
 } from '$lib/api/anacode/models';
+import { toast } from 'svelte-sonner';
+import { error as kitError } from '@sveltejs/kit';
 
-export const url = 'http://127.0.0.1:6603';
+export const url = 'https://anacode-332747414593.europe-west9.run.app';
 
 async function handleError(response: Response): Promise<never> {
 	try {
 		const errorData = (await response.json()) as Error;
-		throw new Error(errorData.error || 'Unknown error occurred');
+		if (errorData?.error) {
+			const errMessage = `${errorData.error}`;
+			throw new Error(errMessage);
+		}
+		throw new Error('Server Error');
 	} catch (e) {
 		throw new Error(e.message);
 	}
