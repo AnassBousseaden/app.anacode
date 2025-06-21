@@ -1,5 +1,5 @@
 // @ts-nocheck
-export const prerender = true;
+export const prerender = false;
 export const ssr = false;
 import { getProgrammingLanguages, getPublicProblems } from '$lib/api/anacode/api.anacode.ts';
 
