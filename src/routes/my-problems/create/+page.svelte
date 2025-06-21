@@ -29,6 +29,7 @@
   import EditorHeader from '$lib/app/components/editor/EditorHeader.svelte';
   import { PrivateExecutionsContextManager } from '$lib/app/create/ExecutionContextsManager.ts';
   import { goto } from '$app/navigation';
+  import { base } from '$app/paths';
   // --- Data & Stores ---
   export let data;
   let { problemData, problemId, languages: programmingLanguages } = data;
@@ -315,8 +316,8 @@
 </Resizable.PaneGroup>
 
 <SuccessCreateProblemModal bind:showSuccessModal={showSuccessModal}
-													 backToProblem={() => performRedirect('/my-problems') }
-													 viewProblem={() => performRedirect(`/problems/${problemID}`)} />
+													 backToProblem={() => performRedirect(`${base}/my-problems`) }
+													 viewProblem={() => performRedirect(`${base}/problems/${problemID}`)} />
 
 
 <Dialog.Root

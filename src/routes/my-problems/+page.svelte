@@ -35,7 +35,7 @@
 				<Card.Title>Your Programming Problems</Card.Title>
 				<Card.Description>Manage your created problems</Card.Description>
 			</div>
-			<Button on:click={() => goto(`/my-problems/create`)} size="sm" class="ml-auto gap-1">
+			<Button on:click={() => goto(`${base}/my-problems/create`)} size="sm" class="ml-auto gap-1">
 				<FolderPlus class="h-4 w-4" />
 				New Problem
 			</Button>
@@ -79,7 +79,7 @@
 								</Table.Cell>
 								<Table.Cell>{new Date(updated_at).toLocaleString()}</Table.Cell>
 								<Table.Cell class="text-nowrap">
-									<Button variant="outline" href={`/my-problems/create?${jsonToQueryParams({ problem_id: id })}`}
+									<Button variant="outline" href={`${base}/my-problems/create?${jsonToQueryParams({ problem_id: id })}`}
 													size="icon">
 										<PencilLine class="w-4 h-4" />
 									</Button>

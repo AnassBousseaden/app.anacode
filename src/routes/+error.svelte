@@ -3,12 +3,12 @@
 
 	import * as Alert from '$lib/components/ui/alert/index.js';
 	import { Button } from '$lib/components/ui/button';
+	import { base } from '$app/paths';
 
 	const status = page.status;
 	const message = page.error.message ?? 'Server error';
 	const goHome = () => {
-		// navigate programmatically without a full reload
-		import('$app/navigation').then(({ goto }) => goto('/'));
+		import('$app/navigation').then(({ goto }) => goto(`${base}/`));
 	};
 
 </script>
